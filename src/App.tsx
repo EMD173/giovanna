@@ -27,6 +27,7 @@ import { InstitutionalVault } from './features/profile/InstitutionalVault';
 import { RecognitionRite } from './features/auth/RecognitionRite';
 import { ProfessionalDashboard } from './features/village/ProfessionalDashboard';
 import { AboutEli } from './features/about/AboutEli';
+import { UsageDashboard } from './features/admin/UsageDashboard';
 
 function AppContent() {
   const { user, loading } = useAuthStore();
@@ -140,6 +141,9 @@ function AppContent() {
       // About / Story Route
       case 'About': content = <AboutEli />; break;
 
+      // Admin Route
+      case 'AdminDashboard': content = <UsageDashboard onBack={() => setCurrentView('Sanctuary')} />; break;
+
       default: content = <Dashboard onNavigate={setCurrentView} />;
     }
 
@@ -151,7 +155,7 @@ function AppContent() {
   };
 
   // Hide bottom nav for certain views
-  const hideNav = ['Passport', 'Vault', 'Onboarding', 'ProfessionalDashboard', 'About'].includes(currentView);
+  const hideNav = ['Passport', 'Vault', 'Onboarding', 'ProfessionalDashboard', 'About', 'AdminDashboard'].includes(currentView);
 
   if (hideNav) {
     return (
