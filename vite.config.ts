@@ -60,4 +60,22 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split Firebase into its own chunk (largest dependency)
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
+          // Split animation/UI libraries
+          animations: ['framer-motion'],
+          // Split React core
+          react: ['react', 'react-dom'],
+          // Split icons
+          icons: ['lucide-react'],
+        }
+      }
+    },
+    // Increase chunk size warning limit since we're code-splitting anyway
+    chunkSizeWarningLimit: 600,
+  },
 })
