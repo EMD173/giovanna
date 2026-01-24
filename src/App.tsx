@@ -11,6 +11,8 @@ import { LoadingSkeleton } from './components/LoadingSkeleton';
 import { SOSPulse } from './components/SOSPulse';
 import { InstallPrompt } from './components/InstallPrompt';
 import { FeedbackButton } from './components/FeedbackButton';
+import { PageTransition } from './components/PageTransition';
+import { trackEvent, setAnalyticsUser, initAnalytics, Events } from './lib/analytics';
 
 // Import Features
 import { Dashboard } from './features/sanctuary/Dashboard';
@@ -59,6 +61,29 @@ function AppContent() {
     loadProfile();
   }, [user]);
 
+  // Initialize analytics and track user
+  useEffect(() => {
+    initAnalytics();
+    if (user) {
+      setAnalyticsUser(user.uid);
+    }
+  }, [user]);
+
+  // Track view changes
+  useEffect(() => {
+    const eventMap: Record<string, string> = {
+      'Sanctuary': Events.VIEW_DASHBOARD,
+      'Oracle': Events.VIEW_ORACLE,
+      'Capture': Events.VIEW_CAPTURE,
+      'Village': Events.VIEW_VILLAGE,
+      'Journey': Events.VIEW_JOURNEY,
+    };
+    const event = eventMap[currentView];
+    if (event) {
+      trackEvent(event);
+    }
+  }, [currentView]);
+
   // Show login screen if not authenticated
   if (!user && !loading) {
     return (
@@ -87,35 +112,42 @@ function AppContent() {
   }
 
   const renderView = () => {
+    let content;
     switch (currentView) {
       // Main Navigation
-      case 'Sanctuary': return <Dashboard onNavigate={setCurrentView} />;
-      case 'Village': return <Village onNavigate={setCurrentView} />;
-      case 'Capture': return <Capture />;
-      case 'Oracle': return <Oracle />;
-      case 'Journey': return <Journey />;
+      case 'Sanctuary': content = <Dashboard onNavigate={setCurrentView} />; break;
+      case 'Village': content = <Village onNavigate={setCurrentView} />; break;
+      case 'Capture': content = <Capture />; break;
+      case 'Oracle': content = <Oracle />; break;
+      case 'Journey': content = <Journey />; break;
 
       // Profile & Vault Routes
-      case 'Passport': return <DigitalPassport />;
-      case 'Vault': return <InstitutionalVault />;
-      case 'Onboarding': return (
+      case 'Passport': content = <DigitalPassport />; break;
+      case 'Vault': content = <InstitutionalVault />; break;
+      case 'Onboarding': content = (
         <RecognitionRite onComplete={() => setCurrentView('Sanctuary')} />
-      );
+      ); break;
 
       // Professional Routes
-      case 'ProfessionalDashboard': return (
+      case 'ProfessionalDashboard': content = (
         <ProfessionalDashboard
           careTeamId="team-1"
           practitionerName={profile?.parent?.title || 'Caregiver'}
           childName={profile?.childName || 'Child'}
         />
-      );
+      ); break;
 
       // About / Story Route
-      case 'About': return <AboutEli />;
+      case 'About': content = <AboutEli />; break;
 
-      default: return <Dashboard onNavigate={setCurrentView} />;
+      default: content = <Dashboard onNavigate={setCurrentView} />;
     }
+
+    return (
+      <PageTransition key={currentView}>
+        {content}
+      </PageTransition>
+    );
   };
 
   // Hide bottom nav for certain views
