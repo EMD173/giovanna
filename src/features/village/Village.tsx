@@ -19,6 +19,7 @@ import {
     Sparkles
 } from 'lucide-react';
 import { IEPBridge } from './IEPBridge';
+import { VillageInviteModal } from './VillageInviteModal';
 
 interface VillageProps {
     onNavigate?: (view: string) => void;
@@ -26,6 +27,7 @@ interface VillageProps {
 
 export const Village = ({ onNavigate }: VillageProps) => {
     const [showIEPBridge, setShowIEPBridge] = useState(false);
+    const [showInviteModal, setShowInviteModal] = useState(false);
     const [isPremium] = useState(true); // TODO: Connect to actual tier
 
     const team = [
@@ -116,7 +118,7 @@ export const Village = ({ onNavigate }: VillageProps) => {
                         Your Village
                     </h3>
                     <button
-                        onClick={() => alert('Village invitations coming soon! You\'ll be able to add care team members here.')}
+                        onClick={() => setShowInviteModal(true)}
                         className="flex items-center gap-1 text-xs font-semibold text-[#4B0082] hover:underline"
                     >
                         <UserPlus className="w-3 h-3" />
@@ -228,6 +230,13 @@ export const Village = ({ onNavigate }: VillageProps) => {
                     <ChevronRight className="w-5 h-5 opacity-40" />
                 </button>
             </div>
+
+            {/* Invite Modal */}
+            <VillageInviteModal
+                isOpen={showInviteModal}
+                onClose={() => setShowInviteModal(false)}
+                childName="Your Child"
+            />
 
         </div>
     );
