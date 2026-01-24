@@ -14,6 +14,7 @@ import { useAuthStore } from '../../core/stores/useAuthStore';
 import { useSanctuaryPulse } from '../../core/stores/useSanctuaryPulse';
 import { RegulationGlow } from '../../design/atoms/RegulationGlow';
 import { getProfile } from '../../core/firebase/profiles';
+import { NotificationBell } from '../../components/NotificationBell';
 import type { UserProfile } from '../../core/stores/profileTypes';
 
 interface DashboardProps {
@@ -86,9 +87,12 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
 
             {/* 1. GREETING AREA - Personalized */}
             <header>
-                <h2 className="text-sm font-bold tracking-widest text-[#4B0082] uppercase opacity-80">
-                    Current Atmosphere
-                </h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-bold tracking-widest text-[#4B0082] uppercase opacity-80">
+                        Current Atmosphere
+                    </h2>
+                    <NotificationBell />
+                </div>
                 <h1
                     className="text-4xl mt-1"
                     style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}
