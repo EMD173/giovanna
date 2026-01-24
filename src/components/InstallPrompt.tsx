@@ -88,6 +88,7 @@ export const InstallPrompt = () => {
                         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
                         backdropFilter: 'blur(10px)',
                         color: 'white',
+                        position: 'relative',
                     }}
                 >
                     {/* Close Button */}
@@ -133,8 +134,8 @@ export const InstallPrompt = () => {
                             </h3>
                             <p style={{ margin: '4px 0 0', fontSize: '0.85rem', opacity: 0.9 }}>
                                 {isIOS
-                                    ? 'Tap Share → "Add to Home Screen"'
-                                    : 'Install for quick access anytime'}
+                                    ? 'One tap access — no typing URLs'
+                                    : 'Skip the browser. Instant access when you need it most.'}
                             </p>
                         </div>
                     </div>
