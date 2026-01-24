@@ -9,6 +9,8 @@ import type { UserProfile } from './core/stores/profileTypes';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingSkeleton } from './components/LoadingSkeleton';
 import { SOSPulse } from './components/SOSPulse';
+import { InstallPrompt } from './components/InstallPrompt';
+import { FeedbackButton } from './components/FeedbackButton';
 
 // Import Features
 import { Dashboard } from './features/sanctuary/Dashboard';
@@ -147,6 +149,8 @@ function App() {
   return (
     <ErrorBoundary>
       <AppContent />
+      <InstallPrompt />
+      <FeedbackButton />
     </ErrorBoundary>
   );
 }

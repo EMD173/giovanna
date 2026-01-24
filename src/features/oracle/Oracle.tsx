@@ -10,7 +10,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Sparkles, Moon, BookOpen, Loader2, Settings } from 'lucide-react';
+import { Send, Sparkles, Moon, BookOpen, Loader2, Settings, Mic, MicOff } from 'lucide-react';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { getObservations } from '../../core/firebase/firestore';
 import { getProfile } from '../../core/firebase/profiles';
@@ -122,7 +122,45 @@ export const Oracle = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasApiKey, setHasApiKey] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [isListening, setIsListening] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recognitionRef = useRef<any>(null);
+
+    // Voice Input Handler
+    const toggleVoiceInput = () => {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Voice input is not supported in this browser. Try Chrome or Safari.');
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const recognition = new SpeechRecognitionAPI();
+        recognitionRef.current = recognition;
+
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => setIsListening(true);
+        recognition.onend = () => setIsListening(false);
+        recognition.onerror = () => setIsListening(false);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        recognition.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            setInput((prev) => prev + (prev ? ' ' : '') + transcript);
+        };
+
+        recognition.start();
+    };
 
     // Check for API key on mount
     useEffect(() => {
@@ -347,14 +385,26 @@ How are you carrying today?`;
                     <span className="text-[10px]">Powered by Google {GEMINI_VERSION}</span>
                 </div>
                 <div className="glass-panel p-2 rounded-[24px] flex items-center shadow-lg">
+                    {/* Voice Input Button */}
+                    <button
+                        onClick={toggleVoiceInput}
+                        disabled={isThinking}
+                        className={`p-3 rounded-full transition-all ${isListening
+                            ? 'bg-red-500 text-white animate-pulse'
+                            : 'text-[#4B0082] hover:bg-[#4B0082]/10'
+                            }`}
+                        aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+                    >
+                        {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                    </button>
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Speak what's on your heart..."
+                        placeholder={isListening ? 'Listening...' : 'Speak what\'s on your heart...'}
                         disabled={isThinking}
-                        className="flex-1 bg-transparent px-4 py-3 placeholder-[#1A1A1A]/40 focus:outline-none font-medium disabled:opacity-50"
+                        className="flex-1 bg-transparent px-3 py-3 placeholder-[#1A1A1A]/40 focus:outline-none font-medium disabled:opacity-50"
                         style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-body)' }}
                     />
                     <button
