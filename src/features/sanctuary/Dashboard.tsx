@@ -206,7 +206,8 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
 
                 <div className="mt-6 flex space-x-3 relative z-10">
                     <button
-                        className="flex-1 py-3 rounded-2xl text-sm font-bold shadow-lg active:scale-95 transition-all"
+                        onClick={() => onNavigate && onNavigate('Capture')}
+                        className="flex-1 py-3 rounded-2xl text-sm font-bold shadow-lg active:scale-95 transition-all hover:opacity-90"
                         style={{
                             backgroundColor: goldIntensity > 0.5 ? '#D4AF37' : '#4B0082',
                             color: 'white',
@@ -214,7 +215,9 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                     >
                         Witness Moment
                     </button>
-                    <button className="px-4 py-3 rounded-2xl bg-white/40 border border-white/50 font-bold text-sm active:scale-95 transition-all"
+                    <button
+                        onClick={() => onNavigate && onNavigate('Journey')}
+                        className="px-4 py-3 rounded-2xl bg-white/40 border border-white/50 font-bold text-sm active:scale-95 transition-all hover:bg-white/60"
                         style={{ color: 'var(--text-primary)' }}
                     >
                         View Patterns
@@ -229,7 +232,8 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                         Up Next
                     </h3>
                     <button
-                        className="text-xs font-bold px-3 py-1 rounded-full"
+                        onClick={() => alert('Full day view coming soon! For now, check the Journey page.')}
+                        className="text-xs font-bold px-3 py-1 rounded-full hover:bg-white/50 active:scale-95 transition-all"
                         style={{ color: '#4B0082', backgroundColor: 'rgba(255,255,255,0.3)' }}
                     >
                         See Full Day
