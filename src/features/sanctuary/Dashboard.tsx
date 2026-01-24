@@ -236,8 +236,9 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                     </button>
                 </div>
 
-                <div
-                    className="backdrop-blur-xl p-5 rounded-[28px] flex items-center space-x-4 shadow-sm transition-all duration-500"
+                <button
+                    onClick={() => onNavigate && onNavigate('Journey')}
+                    className="backdrop-blur-xl p-5 rounded-[28px] flex items-center space-x-4 shadow-sm transition-all duration-500 w-full text-left hover:scale-[1.01] active:scale-[0.99]"
                     style={dynamicGlassStyle}
                 >
                     <div className="h-12 w-12 rounded-2xl bg-[#FFE4E1] flex items-center justify-center text-[#D2691E]">
@@ -248,10 +249,11 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                         <p className="text-sm opacity-60" style={{ color: 'var(--text-primary)' }}>4:30 PM • Living Room</p>
                     </div>
                     <ChevronRight className="w-5 h-5 opacity-30" style={{ color: 'var(--text-primary)' }} />
-                </div>
+                </button>
 
-                <div
-                    className="backdrop-blur-xl p-5 rounded-[28px] flex items-center space-x-4 shadow-sm opacity-60"
+                <button
+                    onClick={() => onNavigate && onNavigate('Journey')}
+                    className="backdrop-blur-xl p-5 rounded-[28px] flex items-center space-x-4 shadow-sm opacity-60 w-full text-left hover:opacity-80 active:scale-[0.99] transition-all"
                     style={dynamicGlassStyle}
                 >
                     <div className="h-12 w-12 rounded-2xl bg-[#E6E6FA] flex items-center justify-center text-[#4B0082]">
@@ -261,7 +263,8 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                         <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>Speech Therapy</h4>
                         <p className="text-sm opacity-60" style={{ color: 'var(--text-primary)' }}>5:15 PM • Zoom</p>
                     </div>
-                </div>
+                    <ChevronRight className="w-5 h-5 opacity-30" style={{ color: 'var(--text-primary)' }} />
+                </button>
             </div>
 
             {/* 4. QUICK ACTIONS - Access Passport & Vault */}
