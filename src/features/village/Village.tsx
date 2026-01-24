@@ -115,18 +115,24 @@ export const Village = ({ onNavigate }: VillageProps) => {
                     <h3 className="text-xs font-bold uppercase tracking-wider opacity-60">
                         Your Village
                     </h3>
-                    <button className="flex items-center gap-1 text-xs font-semibold text-[#4B0082]">
+                    <button
+                        onClick={() => alert('Village invitations coming soon! You\'ll be able to add care team members here.')}
+                        className="flex items-center gap-1 text-xs font-semibold text-[#4B0082] hover:underline"
+                    >
                         <UserPlus className="w-3 h-3" />
                         Invite
                     </button>
                 </div>
                 <div className="flex space-x-4 overflow-x-auto pb-4 no-scrollbar">
-                    <div className="flex flex-col items-center space-y-2">
-                        <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#4B0082]/30 flex items-center justify-center">
+                    <button
+                        onClick={() => alert('Team management coming soon!')}
+                        className="flex flex-col items-center space-y-2"
+                    >
+                        <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#4B0082]/30 flex items-center justify-center hover:bg-[#4B0082]/5 transition-colors">
                             <Users className="w-6 h-6 text-[#4B0082]" />
                         </div>
                         <span className="text-xs font-bold opacity-60">Manage</span>
-                    </div>
+                    </button>
 
                     {team.map((member, i) => (
                         <div key={i} className="flex flex-col items-center space-y-2 min-w-[64px]">
@@ -204,7 +210,10 @@ export const Village = ({ onNavigate }: VillageProps) => {
 
             {/* VILLAGE ONBOARDING CTA */}
             <div className="px-4">
-                <button className="w-full glass-panel p-4 rounded-[24px] flex items-center gap-3 hover:bg-white/50 transition-colors">
+                <button
+                    onClick={() => alert('Village member invitations coming soon! You\'ll be able to add teachers, therapists, and caregivers.')}
+                    className="w-full glass-panel p-4 rounded-[24px] flex items-center gap-3 hover:bg-white/50 transition-colors active:scale-[0.98]"
+                >
                     <div className="p-2 rounded-xl bg-[#4B0082]/10">
                         <UserPlus className="w-5 h-5 text-[#4B0082]" />
                     </div>

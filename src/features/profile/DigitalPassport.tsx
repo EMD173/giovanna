@@ -242,10 +242,26 @@ export const DigitalPassport = () => {
                         ← Edit Passport
                     </button>
                     <div className="flex gap-2">
-                        <button className="p-2 rounded-xl bg-white/30">
+                        <button
+                            onClick={() => {
+                                if (navigator.share) {
+                                    navigator.share({
+                                        title: `${profile?.childName}'s Digital Passport`,
+                                        text: sacredSummary || 'A sacred summary of who they are.',
+                                    });
+                                } else {
+                                    navigator.clipboard.writeText(sacredSummary || '');
+                                    alert('Passport summary copied to clipboard!');
+                                }
+                            }}
+                            className="p-2 rounded-xl bg-white/30 hover:bg-white/50 transition-colors"
+                        >
                             <Share2 className="w-5 h-5 text-[#4B0082]" />
                         </button>
-                        <button className="p-2 rounded-xl bg-white/30">
+                        <button
+                            onClick={() => alert('PDF export coming soon! For now, screenshot or share.')}
+                            className="p-2 rounded-xl bg-white/30 hover:bg-white/50 transition-colors"
+                        >
                             <Download className="w-5 h-5 text-[#4B0082]" />
                         </button>
                     </div>

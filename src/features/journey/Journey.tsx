@@ -161,7 +161,10 @@ export const Journey = () => {
                 ))}
 
                 {/* 'ADD NEW' CARD */}
-                <button className="border-2 border-dashed border-[#1A1A1A]/20 rounded-[24px] flex flex-col items-center justify-center text-center space-y-2 aspect-square active:bg-black/5 transition-colors cursor-pointer hover:border-[#4B0082]/40">
+                <button
+                    onClick={() => alert('Custom strategies coming soon! You\'ll be able to create your own calming techniques.')}
+                    className="border-2 border-dashed border-[#1A1A1A]/20 rounded-[24px] flex flex-col items-center justify-center text-center space-y-2 aspect-square active:bg-black/5 transition-colors cursor-pointer hover:border-[#4B0082]/40"
+                >
                     <div className="w-12 h-12 rounded-full bg-[#1A1A1A]/5 flex items-center justify-center">
                         <span className="text-2xl text-[#1A1A1A]/40">+</span>
                     </div>
@@ -237,7 +240,20 @@ export const Journey = () => {
                                     <Check size={18} />
                                     Try This Now
                                 </button>
-                                <button className="py-3 px-4 bg-gray-100 text-[#1A1A1A] rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors">
+                                <button
+                                    onClick={() => {
+                                        if (navigator.share) {
+                                            navigator.share({
+                                                title: selectedStrategy.title,
+                                                text: selectedStrategy.description,
+                                            });
+                                        } else {
+                                            navigator.clipboard.writeText(`${selectedStrategy.title}: ${selectedStrategy.description}`);
+                                            alert('Strategy copied to clipboard!');
+                                        }
+                                    }}
+                                    className="py-3 px-4 bg-gray-100 text-[#1A1A1A] rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors"
+                                >
                                     <Share2 size={18} />
                                 </button>
                             </div>
