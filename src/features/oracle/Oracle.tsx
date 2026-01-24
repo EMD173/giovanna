@@ -29,12 +29,31 @@ type Message = {
 };
 
 /**
- * Generate a Reflective Mirroring response based on past observations
+ * Generate a Reflective Mirroring response based on past observations AND profile data
  */
-function generateReflectiveMirror(observations: Observation[]): string {
-    // If no observations, provide a grounding response
+function generateReflectiveMirror(
+    observations: Observation[],
+    profile: UserProfile | null
+): string {
+    const childName = profile?.childName || 'your child';
+    const parentTitle = profile?.parent?.title || 'friend';
+    const passport = profile?.passport;
+    const systemicContext = profile?.systemicContext;
+
+    // Extract personalization data from passport
+    const knownTriggers = passport?.sensory?.regulationTriggers || [];
+    const stimmingPatterns = passport?.sensory?.stimmingPatterns || [];
+    const comfortObjects = passport?.sensory?.favoriteToys?.filter(t => t.neverSeparate) || [];
+    const safeSpaces = passport?.sensory?.safeSpaces || [];
+    const knownStressors = systemicContext?.knownStressors || [];
+
+    // If no observations, provide a personalized grounding response
     if (observations.length === 0) {
-        return `I am sitting with what you've shared.
+        const personalizedGreeting = childName !== 'your child'
+            ? `I am sitting with what you've shared about ${childName}, ${parentTitle}.`
+            : `I am sitting with what you've shared.`;
+
+        return `${personalizedGreeting}
 
 There is wisdom in beginning — in choosing to witness rather than simply react. 
 
@@ -61,50 +80,79 @@ What drew you to this moment of reflection? What is the body holding that the mi
         o.atmosphericResonance?.toLowerCase().includes('therapy')
     );
 
-    // Generate contextual response
+    // Check if recent observations match known triggers
+    const recentNarrative = observations.slice(0, 3).map(o => o.strengthNarrative).join(' ').toLowerCase();
+    const matchedTrigger = knownTriggers.find(t =>
+        recentNarrative.includes(t.trigger?.toLowerCase() || '')
+    );
+
+    // Generate contextual, personalized responses
     const responses: string[] = [];
 
+    // Personalized trigger-aware response
+    if (matchedTrigger) {
+        responses.push(`I notice something, ${parentTitle}.
+
+In your recent witnessing, I see echoes of a pattern you've documented before: "${matchedTrigger.trigger}."
+
+${matchedTrigger.dignityFraming ? `You've named this beautifully: "${matchedTrigger.dignityFraming}." This reframing matters.` : ''}
+
+${matchedTrigger.effectiveResponse ? `You've discovered that ${matchedTrigger.effectiveResponse.toLowerCase()}. Is that still resonating?` : `What has helped ${childName} when this arises?`}`);
+    }
+
     if (avgReciprocity < 2.5) {
-        responses.push(`I notice a pattern of disconnection in your recent witnessing.
+        responses.push(`I notice a pattern of disconnection in your recent witnessing of ${childName}, ${parentTitle}.
 
 When connection feels far, it is often the caregiver — not the child — who is being asked to hold too much. The nervous system protects itself through distance.
+
+${knownStressors.length > 0 ? `You've named systemic pressures: ${knownStressors.slice(0, 2).join(', ')}. These matter.` : ''}
 
 What would it mean to locate the inadequacy outside yourself, where it often begins?`);
     }
 
     if (dominantChannel === 'Seeking Safety') {
-        responses.push(`"Seeking Safety" appears again and again in your reflections.
+        const safeSpaceReference = safeSpaces.length > 0
+            ? `You've mentioned ${safeSpaces[0]} as a safe space for ${childName}. Is that still where safety lives?`
+            : `What does safety look like in your home? Not as an aspiration, but as a sensory experience?`;
 
-This is not a behavior to be managed — it is a compass pointing toward something essential. The body knows before the mind what it needs.
+        responses.push(`"Seeking Safety" appears again and again in your reflections about ${childName}.
 
-What does safety look like in your home? Not as an aspiration, but as a sensory experience?`);
+This is not a behavior to be managed — it is a compass pointing toward something essential. ${childName}'s body knows before the mind what it needs.
+
+${safeSpaceReference}`);
     }
 
     if (dominantChannel === 'Transition Signal') {
-        responses.push(`Transitions carry weight.
+        responses.push(`Transitions carry weight for ${childName}.
 
 I see you've witnessed this pattern repeatedly — the friction at the edges of change. In the Epigenetic framework, we understand that transitions are not just logistical; they are nervous system events.
 
-What ritual, however small, might honor the threshold between one space and another?`);
+${stimmingPatterns.length > 0 ? `You've documented that ${childName} self-regulates through ${stimmingPatterns[0].behavior?.toLowerCase() || 'essential movements'}. Honoring this at transitions may ease the crossing.` : `What ritual, however small, might honor the threshold between one space and another for ${childName}?`}`);
     }
 
     if (hasSystemicStress) {
-        responses.push(`The systems are present in your witnessing — school, therapy, the institutional weight of being seen through deficit lenses.
+        responses.push(`The systems are present in your witnessing of ${childName}, ${parentTitle} — school, therapy, the institutional weight of being seen through deficit lenses.
+
+${systemicContext?.hasIEP ? `The IEP process asks you to translate ${childName}'s wholeness into checkboxes. That labor is real.` : ''}
 
 Let me ask: In those moments where the system speaks loudest, who is witnessing *you*? Where is your sanctuary within the sanctuary?`);
     }
 
     if (avgReciprocity > 4) {
-        responses.push(`I see moments of deep resonance in your recent reflections.
+        const comfortRef = comfortObjects.length > 0
+            ? `Was ${comfortObjects[0].name} present? Sometimes the essential objects anchor the good moments too.`
+            : `What conditions were present? What can be cultivated rather than hoped for?`;
 
-When connection flows, it is easy to dismiss it as simply "a good day." But there is information here too. What conditions were present? What can be cultivated rather than hoped for?`);
+        responses.push(`I see moments of deep resonance between you and ${childName} in your recent reflections, ${parentTitle}.
+
+When connection flows, it is easy to dismiss it as simply "a good day." But there is information here too. ${comfortRef}`);
     }
 
-    // Default scholarly response
+    // Default scholarly response with personalization
     if (responses.length === 0) {
-        responses.push(`I am sitting with what you've shared.
+        responses.push(`I am sitting with what you've shared about ${childName}, ${parentTitle}.
 
-There is a thread here — between what was communicated and what was received. Not every signal finds its resonance immediately. Some require the patience of witnessing over time.
+There is a thread here — between what ${childName} communicated and what was received. Not every signal finds its resonance immediately. Some require the patience of witnessing over time.
 
 What pattern, if any, do you notice emerging across these moments?`);
     }
@@ -259,7 +307,7 @@ How are you carrying today?`;
 
         // Generate reflective mirroring response
         setTimeout(() => {
-            const response = generateReflectiveMirror(observations);
+            const response = generateReflectiveMirror(observations, _profile);
             const oracleMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 sender: 'oracle',
