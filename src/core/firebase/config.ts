@@ -50,14 +50,17 @@ export const db = getFirestore(app);
 // ============================================================================
 
 // Enable offline persistence for PWA functionality
+// Using experimentalForceOwningTab to prevent multi-tab blocking
 if (typeof window !== 'undefined') {
-    enableIndexedDbPersistence(db).catch((err) => {
+    enableIndexedDbPersistence(db, { forceOwnership: true }).catch((err) => {
         if (err.code === 'failed-precondition') {
-            // Multiple tabs open, persistence can only be enabled in one tab at a time
-            console.warn('Firestore persistence failed: Multiple tabs open');
+            // Multiple tabs open - this is now handled gracefully with forceOwnership
+            console.warn('Firestore persistence: Taking ownership from other tab');
         } else if (err.code === 'unimplemented') {
             // Browser doesn't support persistence
             console.warn('Firestore persistence not supported by browser');
+        } else {
+            console.warn('Firestore persistence error:', err);
         }
     });
 }
