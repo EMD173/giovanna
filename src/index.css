@@ -90,6 +90,16 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  /* Soft puzzle piece pattern - symbolizing neurodivergent connections */
+  background-color: rgb(var(--glass-base));
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5c0 2.76-2.24 5-5 5s-5-2.24-5-5h-5v10c-2.76 0-5 2.24-5 5s2.24 5 5 5v10H5c0 2.76 2.24 5 5 5s5-2.24 5-5h10v5c2.76 0 5 2.24 5 5s-2.24 5-5 5v10h10c0-2.76 2.24-5 5-5s5 2.24 5 5h10V45c2.76 0 5-2.24 5-5s-2.24-5-5-5V25h5c0-2.76-2.24-5-5-5s-5 2.24-5 5H35V15c-2.76 0-5-2.24-5-5s2.24-5 5-5V0H25v5c0 0 2.76 0 5 0z' fill='%234B0082' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+
+/* Dark mode puzzle pattern */
+.dark body,
+[data-theme="dark"] body {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5c0 2.76-2.24 5-5 5s-5-2.24-5-5h-5v10c-2.76 0-5 2.24-5 5s2.24 5 5 5v10H5c0 2.76 2.24 5 5 5s5-2.24 5-5h10v5c2.76 0 5 2.24 5 5s-2.24 5-5 5v10h10c0-2.76 2.24-5 5-5s5 2.24 5 5h10V45c2.76 0 5-2.24 5-5s-2.24-5-5-5V25h5c0-2.76-2.24-5-5-5s-5 2.24-5 5H35V15c-2.76 0-5-2.24-5-5s2.24-5 5-5V0H25v5c0 0 2.76 0 5 0z' fill='%238B5CF6' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 /* ============================================================================
