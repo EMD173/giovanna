@@ -16,12 +16,12 @@ import { getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence } fr
 // ============================================================================
 
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyASgHof6mT5sZGRKHfvdHw3VtnR1lPvFZo",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "giovanna-e5b56.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "giovanna-e5b56",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "giovanna-e5b56.firebasestorage.app",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "497437035265",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:497437035265:web:411091ebe1140d28fc6900"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // ============================================================================
