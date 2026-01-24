@@ -1,0 +1,56 @@
+{
+    "name": "Giovanna",
+    "short_name": "Giovanna",
+    "description": "Sovereign Healing Cosmology - A parent-led therapeutic intelligence platform",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#FAF7F5",
+    "theme_color": "#4B0082",
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "health",
+        "wellness",
+        "family"
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "Log Observation",
+            "short_name": "Log",
+            "description": "Capture a new observation",
+            "url": "/?view=Capture",
+            "icons": [
+                {
+                    "src": "/icons/log-shortcut.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Consult Oracle",
+            "short_name": "Oracle",
+            "description": "Speak with the Oracle",
+            "url": "/?view=Oracle",
+            "icons": [
+                {
+                    "src": "/icons/oracle-shortcut.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,202 @@
+rules_version = '2';
+
+/**
+ * GIOVANNA FIRESTORE SECURITY RULES
+ * 
+ * ZERO-KNOWLEDGE ARCHITECTURE:
+ * - All family data is owner-only accessible
+ * - No cross-family data leakage possible
+ * - Village sharing requires explicit, time-bound permissions
+ * 
+ * PHILOSOPHY: Parental observations are sovereign. No institution,
+ * algorithm, or external party can access family data without
+ * explicit, revocable consent.
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========================================================================
+    // HELPER FUNCTIONS
+    // ========================================================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the resource
+    function isOwner(ownerId) {
+      return isAuthenticated() && request.auth.uid == ownerId;
+    }
+
+    // Check if request is from the resource owner
+    function isResourceOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.ownerId;
+    }
+
+    // Check if creating data has correct owner
+    function isCreatingOwnData() {
+      return isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    // Check if Village Key permission is valid and not expired
+    function hasValidVillagePermission(familyId) {
+      let permission = getAfter(/databases/$(database)/documents/villagePermissions/$(request.auth.uid + '_' + familyId));
+      return permission != null 
+        && permission.data.grantedTo == request.auth.uid
+        && permission.data.familyOwnerId == familyId
+        && permission.data.expiresAt > request.time
+        && permission.data.isActive == true;
+    }
+
+    // Check if viewing only sanctuaryId (limited Village access)
+    function isLimitedVillageRead() {
+      return request.query.limit != null && request.query.limit <= 10;
+    }
+
+    // ========================================================================
+    // USER PROFILES
+    // ========================================================================
+
+    match /profiles/{userId} {
+      // Users can only read/write their own profile
+      allow read, write: if isOwner(userId);
+    }
+
+    // ========================================================================
+    // OBSERVATIONS (Behavioral Logs)
+    // ========================================================================
+
+    match /observations/{observationId} {
+      // Owner-only access - no exceptions
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // MIRROR MOMENTS (Wellness Reflections)
+    // ========================================================================
+
+    match /mirrorMoments/{momentId} {
+      // Owner-only access - sacred reflections
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // INTENTIONS (Chosen Responses)
+    // ========================================================================
+
+    match /intentions/{intentionId} {
+      // Owner-only access
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // PRACTICE LOGS (Daily Practice Records)
+    // ========================================================================
+
+    match /practiceLogs/{logId} {
+      // Owner-only access
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // MANTRAS (Rhythmic Anchors)
+    // ========================================================================
+
+    match /mantras/{mantraId} {
+      // Owner-only access
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // INSTITUTIONAL VAULT (IEP, BIP Documents)
+    // ========================================================================
+
+    match /institutionalVault/{docId} {
+      // Owner-only access - highly sensitive
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // REFRACTION NOTES (Advocacy Documents)
+    // ========================================================================
+
+    match /refractionNotes/{noteId} {
+      // Owner-only access
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // VILLAGE PERMISSIONS (Time-Bound Sharing)
+    // ========================================================================
+
+    match /villagePermissions/{permissionId} {
+      // Only the family owner can grant permissions
+      allow create: if isAuthenticated() 
+        && request.resource.data.familyOwnerId == request.auth.uid;
+      
+      // Family owner can read/revoke their granted permissions
+      // Permission recipient can read their received permissions
+      allow read: if isAuthenticated() 
+        && (resource.data.familyOwnerId == request.auth.uid 
+            || resource.data.grantedTo == request.auth.uid);
+      
+      // Only family owner can update/revoke
+      allow update, delete: if isAuthenticated() 
+        && resource.data.familyOwnerId == request.auth.uid;
+    }
+
+    // ========================================================================
+    // VILLAGE SHARED STORIES (Anonymized, With Permission)
+    // ========================================================================
+
+    match /villageStories/{storyId} {
+      // Stories are only visible to authenticated users
+      // AND must be marked as "shared" by owner
+      // AND must respect owner's sharing preferences
+      allow read: if isAuthenticated() 
+        && resource.data.isShared == true
+        && resource.data.sharingExpires > request.time;
+      
+      // Only owner can create/modify their shared stories
+      allow create: if isCreatingOwnData() 
+        && request.resource.data.isShared != null;
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // MISSION ROOM METRICS (Aggregated, Anonymized)
+    // ========================================================================
+
+    match /missionMetrics/{metricId} {
+      // Read-only for authenticated users (aggregated data only)
+      allow read: if isAuthenticated();
+      
+      // Only system can write (no direct user writes)
+      allow write: if false;
+    }
+
+    // ========================================================================
+    // CATCH-ALL: Deny Everything Else
+    // ========================================================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

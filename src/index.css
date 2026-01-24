@@ -1,0 +1,308 @@
+/* ============================================================================
+ * GIOVANNA: SOVEREIGN HEALING COSMOLOGY
+ * Global Styles & Design System
+ * ============================================================================ */
+
+/* ============================================================================
+ * CSS CUSTOM PROPERTIES (Light Mode - Default)
+ * ============================================================================ */
+:root {
+  /* Core Palette */
+  --glass-base: 250, 247, 245;
+  --glass-border: rgba(75, 0, 130, 0.15);
+  --accent-regal: #4B0082;
+  --accent-gold: #D4AF37;
+  --text-primary: #1A1A1A;
+  --text-secondary: rgba(26, 26, 26, 0.6);
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* System */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================================
+ * DARK MODE
+ * ============================================================================ */
+.dark,
+[data-theme="dark"] {
+  --glass-base: 26, 26, 30;
+  --glass-border: rgba(212, 175, 55, 0.2);
+  --accent-regal: #8B5CF6;
+  --accent-gold: #F5D16C;
+  --text-primary: #F5F5F5;
+  --text-secondary: rgba(245, 245, 245, 0.6);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* System preference fallback */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme="light"]) {
+    --glass-base: 26, 26, 30;
+    --glass-border: rgba(212, 175, 55, 0.2);
+    --accent-regal: #8B5CF6;
+    --accent-gold: #F5D16C;
+    --text-primary: #F5F5F5;
+    --text-secondary: rgba(245, 245, 245, 0.6);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ============================================================================
+ * BASE RESET
+ * ============================================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-body);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: rgb(var(--glass-base));
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* ============================================================================
+ * TYPOGRAPHY
+ * ============================================================================ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--accent-regal);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ============================================================================
+ * FOCUS STATES (Accessibility)
+ * ============================================================================ */
+:focus {
+  outline: 2px solid var(--accent-regal);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-regal);
+  outline-offset: 2px;
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  padding: 8px 16px;
+  background: var(--accent-regal);
+  color: white;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ============================================================================
+ * BUTTONS (Accessibility)
+ * ============================================================================ */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent-regal);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * FORMS (Accessibility)
+ * ============================================================================ */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent-regal);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --glass-border: rgba(0, 0, 0, 0.5);
+  }
+
+  .dark {
+    --glass-border: rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* ============================================================================
+ * LIQUID GLASS COMPONENTS
+ * ============================================================================ */
+.glass-panel {
+  background: rgba(var(--glass-base), 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.dark .glass-panel {
+  background: rgba(var(--glass-base), 0.9);
+  border: 1px solid var(--glass-border);
+}
+
+.gold-leaf-border {
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.premium-glow {
+  box-shadow: 0 0 30px rgba(75, 0, 130, 0.15);
+}
+
+.dark .premium-glow {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+/* ============================================================================
+ * ANIMATIONS
+ * ============================================================================ */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-gentle {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+ * VILLAGE TIER BADGE
+ * ============================================================================ */
+.village-badge {
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #B8860B 100%);
+  color: white;
+  font-weight: 600;
+}
+
+/* ============================================================================
+ * UTILITY CLASSES
+ * ============================================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Color contrast helpers */
+.text-high-contrast {
+  color: var(--text-primary) !important;
+}
+
+.bg-high-contrast {
+  background-color: rgb(var(--glass-base)) !important;
+}
