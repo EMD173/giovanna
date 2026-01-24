@@ -14,6 +14,13 @@ import { Send, Sparkles, Moon, BookOpen, Loader2, Settings, Mic, MicOff } from '
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { getObservations } from '../../core/firebase/firestore';
 import { getProfile } from '../../core/firebase/profiles';
+import {
+    getCurrentConversation,
+    createConversation,
+    addMessageToConversation,
+    shouldStartNewConversation,
+    type OracleConversation,
+} from '../../core/firebase/oracleChats';
 import { ApiKeySettings, getStoredApiKey } from '../../components/ApiKeySettings';
 import type { Observation } from '../../core/stores/types';
 import type { UserProfile } from '../../core/stores/profileTypes';
@@ -171,6 +178,7 @@ export const Oracle = () => {
     const [hasApiKey, setHasApiKey] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [isListening, setIsListening] = useState(false);
+    const [currentConversation, setCurrentConversation] = useState<OracleConversation | null>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recognitionRef = useRef<any>(null);
@@ -216,33 +224,37 @@ export const Oracle = () => {
         setHasApiKey(!!key);
     }, []);
 
-    // Fetch observations and profile on mount
+    // Fetch observations, profile, and previous conversation on mount
     useEffect(() => {
         async function loadData() {
             if (!user) return;
 
             try {
-                const [obs, userProfile] = await Promise.all([
+                const [obs, userProfile, existingConversation] = await Promise.all([
                     getObservations(user.uid, 10),
-                    getProfile(user.uid)
+                    getProfile(user.uid),
+                    getCurrentConversation(user.uid),
                 ]);
 
                 setObservations(obs);
                 setProfile(userProfile);
 
-                // Personalized names from profile
-                const parentTitle = userProfile?.parent?.title || 'friend';
-                const childName = userProfile?.childName;
+                // Check if we should continue previous conversation or start new
+                if (existingConversation && !shouldStartNewConversation(existingConversation)) {
+                    // Restore previous conversation
+                    setCurrentConversation(existingConversation);
+                    setMessages(existingConversation.messages);
+                } else {
+                    // Start fresh conversation with personalized greeting
+                    const parentTitle = userProfile?.parent?.title || 'friend';
+                    const childName = userProfile?.childName;
+                    const hasIEP = userProfile?.systemicContext?.hasIEP;
+                    const knownStressors = userProfile?.systemicContext?.knownStressors || [];
 
-                // Context from profile for Trajectory Abstraction
-                const hasIEP = userProfile?.systemicContext?.hasIEP;
-                const knownStressors = userProfile?.systemicContext?.knownStressors || [];
+                    let greeting: string;
 
-                // Generate personalized greeting
-                let greeting: string;
-
-                if (obs.length > 0 && childName) {
-                    greeting = `Welcome back, ${parentTitle}.
+                    if (obs.length > 0 && childName) {
+                        greeting = `Welcome back, ${parentTitle}.
 
 I have been holding your recent witnessing — ${obs.length} moments of attention you've given to understanding ${childName}'s communication.
 
@@ -251,8 +263,8 @@ ${hasIEP ? `I see you navigate systems that weren't built for ${childName}. The 
 I am here not to fix or advise, but to think alongside you. To mirror back what you may not yet see.
 
 What is present for you in this moment?`;
-                } else if (childName) {
-                    greeting = `Welcome to the Oracle, ${parentTitle}.
+                    } else if (childName) {
+                        greeting = `Welcome to the Oracle, ${parentTitle}.
 
 I am here — not to fix, advise, or optimize — but to think alongside you as you witness ${childName}'s journey.
 
@@ -261,24 +273,31 @@ This is a space for reflection, not performance. When you begin documenting mome
 ${knownStressors.length > 0 ? `I'm aware of the systemic pressures you've named: ${knownStressors.join(', ')}. These matter in how we understand every moment.` : ''}
 
 How are you carrying today?`;
-                } else {
-                    greeting = `Welcome to the Oracle.
+                    } else {
+                        greeting = `Welcome to the Oracle.
 
 I am here — not to fix, advise, or optimize — but to think alongside you.
 
 This is a space for reflection, not performance. When you begin witnessing moments in your home, I will be able to see patterns and ask questions that might illuminate what lives beneath the surface.
 
 How are you carrying today?`;
-                }
+                    }
 
-                setMessages([{
-                    id: '1',
-                    sender: 'oracle',
-                    text: greeting,
-                    timestamp: new Date(),
-                }]);
+                    const greetingMsg: Message = {
+                        id: '1',
+                        sender: 'oracle',
+                        text: greeting,
+                        timestamp: new Date(),
+                    };
+
+                    setMessages([greetingMsg]);
+
+                    // Create new conversation with greeting
+                    const newConversation = await createConversation(user.uid, greetingMsg);
+                    setCurrentConversation(newConversation);
+                }
             } catch (error) {
-                console.error('Failed to load observations:', error);
+                console.error('Failed to load Oracle data:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -287,12 +306,13 @@ How are you carrying today?`;
         loadData();
     }, [user]);
 
+
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    const handleSend = () => {
-        if (!input.trim() || isThinking) return;
+    const handleSend = async () => {
+        if (!input.trim() || isThinking || !user) return;
 
         const userMsg: Message = {
             id: Date.now().toString(),
@@ -305,8 +325,21 @@ How are you carrying today?`;
         setInput('');
         setIsThinking(true);
 
+        // Persist user message
+        try {
+            if (currentConversation) {
+                await addMessageToConversation(user.uid, currentConversation.id, userMsg);
+            } else {
+                // Create new conversation with this first user message
+                const newConversation = await createConversation(user.uid, userMsg);
+                setCurrentConversation(newConversation);
+            }
+        } catch (error) {
+            console.error('Failed to persist user message:', error);
+        }
+
         // Generate reflective mirroring response
-        setTimeout(() => {
+        setTimeout(async () => {
             const response = generateReflectiveMirror(observations, _profile);
             const oracleMsg: Message = {
                 id: (Date.now() + 1).toString(),
@@ -316,6 +349,15 @@ How are you carrying today?`;
             };
             setMessages(prev => [...prev, oracleMsg]);
             setIsThinking(false);
+
+            // Persist Oracle response
+            try {
+                if (currentConversation) {
+                    await addMessageToConversation(user.uid, currentConversation.id, oracleMsg);
+                }
+            } catch (error) {
+                console.error('Failed to persist Oracle response:', error);
+            }
         }, 2500);
     };
 
