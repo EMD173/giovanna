@@ -35,6 +35,7 @@ import { PatternDashboard } from './features/analytics/PatternDashboard';
 import { SkillTracker } from './features/skills/SkillTracker';
 import { StrategyLibrary } from './features/resources/StrategyLibrary';
 import { TheoryHub } from './features/resources/TheoryHub';
+import { LegacyCenter } from './features/legacy/LegacyCenter';
 
 function AppContent() {
   const { user, loading } = useAuthStore();
@@ -174,6 +175,9 @@ function AppContent() {
       case 'SkillTracker': content = <SkillTracker onBack={() => setCurrentView('Sanctuary')} />; break;
       case 'StrategyLibrary': content = <StrategyLibrary onBack={() => setCurrentView('Sanctuary')} />; break;
       case 'TheoryHub': content = <TheoryHub onBack={() => setCurrentView('Sanctuary')} />; break;
+
+      // Wave 4: Lifetime Continuity Routes
+      case 'LegacyCenter': content = <LegacyCenter onBack={() => setCurrentView('Sanctuary')} />; break;
 
       default: content = <Dashboard onNavigate={setCurrentView} />;
     }

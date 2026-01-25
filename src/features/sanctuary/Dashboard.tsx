@@ -379,6 +379,20 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                             <p className="text-xs opacity-60">Parent education</p>
                         </button>
 
+                        {/* Wave 4: Lifetime Continuity */}
+                        <button
+                            onClick={() => onNavigate('LegacyCenter')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform col-span-2"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-[#DC2626]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🏛️</span>
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Legacy Center
+                            </p>
+                            <p className="text-xs opacity-60">Continuity planning • Emergency documents</p>
+                        </button>
+
                         <button
                             onClick={() => onNavigate('About')}
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform col-span-2"
