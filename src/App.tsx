@@ -36,6 +36,9 @@ import { SkillTracker } from './features/skills/SkillTracker';
 import { StrategyLibrary } from './features/resources/StrategyLibrary';
 import { TheoryHub } from './features/resources/TheoryHub';
 import { LegacyCenter } from './features/legacy/LegacyCenter';
+import { WellnessHub } from './features/wellness/WellnessHub';
+import { CommunityHub } from './features/community/CommunityHub';
+import { RespiteCenter } from './features/community/RespiteCenter';
 
 function AppContent() {
   const { user, loading } = useAuthStore();
@@ -178,6 +181,11 @@ function AppContent() {
 
       // Wave 4: Lifetime Continuity Routes
       case 'LegacyCenter': content = <LegacyCenter onBack={() => setCurrentView('Sanctuary')} />; break;
+
+      // Wave 5: Wellness & Community Routes
+      case 'WellnessHub': content = <WellnessHub onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'CommunityHub': content = <CommunityHub onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'RespiteCenter': content = <RespiteCenter onBack={() => setCurrentView('Sanctuary')} />; break;
 
       default: content = <Dashboard onNavigate={setCurrentView} />;
     }
