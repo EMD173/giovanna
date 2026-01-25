@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { CloudSun, Battery, CalendarClock, ChevronRight, Sparkles, Heart, AlertTriangle, BookOpen, ToggleLeft, ToggleRight, BarChart3, Target, Brain } from 'lucide-react';
+import { CloudSun, Battery, CalendarClock, ChevronRight, Sparkles, Heart, AlertTriangle, BookOpen, ToggleLeft, ToggleRight, BarChart3, Target, Brain, Stethoscope } from 'lucide-react';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { useSanctuaryPulse } from '../../core/stores/useSanctuaryPulse';
 import { RegulationGlow } from '../../design/atoms/RegulationGlow';
@@ -346,6 +346,19 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                                 Progress
                             </p>
                             <p className="text-xs opacity-60">Reports & Analytics</p>
+                        </button>
+
+                        <button
+                            onClick={() => onNavigate('Therapy')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center mb-2">
+                                <Stethoscope className="w-5 h-5 text-teal-600" />
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Therapy Prep
+                            </p>
+                            <p className="text-xs opacity-60">Session Bridge</p>
                         </button>
 
                         <button
