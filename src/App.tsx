@@ -12,6 +12,7 @@ import { SOSPulse } from './components/SOSPulse';
 import { InstallPrompt } from './components/InstallPrompt';
 import { FeedbackButton } from './components/FeedbackButton';
 import { PageTransition } from './components/PageTransition';
+import { DevWorkstation } from './components/DevWorkstation';
 import { trackEvent, setAnalyticsUser, initAnalytics, Events } from './lib/analytics';
 
 // Import Features
@@ -35,6 +36,16 @@ import { RecognitionRite } from './features/auth/RecognitionRite';
 import { ProfessionalDashboard } from './features/village/ProfessionalDashboard';
 import { AboutEli } from './features/about/AboutEli';
 import { UsageDashboard } from './features/admin/UsageDashboard';
+import { ExportCenter } from './features/capture/ExportCenter';
+import { VisionAgent } from './features/capture/VisionAgent';
+import { PatternDashboard } from './features/analytics/PatternDashboard';
+import { SkillTracker } from './features/skills/SkillTracker';
+import { StrategyLibrary } from './features/resources/StrategyLibrary';
+import { TheoryHub } from './features/resources/TheoryHub';
+import { LegacyCenter } from './features/legacy/LegacyCenter';
+import { WellnessHub } from './features/wellness/WellnessHub';
+import { CommunityHub } from './features/community/CommunityHub';
+import { RespiteCenter } from './features/community/RespiteCenter';
 
 function AppContent() {
   const { user, loading } = useAuthStore();
@@ -110,12 +121,22 @@ function AppContent() {
   // Show onboarding if needed
   if (showOnboarding) {
     return (
-      <RecognitionRite
-        onComplete={() => {
-          setShowOnboarding(false);
-          setCurrentView('Sanctuary');
-        }}
-      />
+      <>
+        <RecognitionRite
+          onComplete={() => {
+            setShowOnboarding(false);
+            setCurrentView('Sanctuary');
+          }}
+        />
+        <DevWorkstation
+          currentView="Onboarding"
+          onNavigate={(view) => {
+            setShowOnboarding(false);
+            setCurrentView(view);
+          }}
+          onSkipOnboarding={() => setShowOnboarding(false)}
+        />
+      </>
     );
   }
 
@@ -125,7 +146,7 @@ function AppContent() {
       // Main Navigation
       case 'Sanctuary': content = <Dashboard onNavigate={setCurrentView} />; break;
       case 'Village': content = <Village onNavigate={setCurrentView} />; break;
-      case 'Capture': content = <Capture />; break;
+      case 'Capture': content = <Capture onNavigate={setCurrentView} />; break;
       case 'Oracle': content = <Oracle />; break;
       case 'Journey': content = <ObservationsTimeline onNavigate={setCurrentView} />; break;
       case 'Strategies': content = <Journey />; break;
@@ -158,6 +179,28 @@ function AppContent() {
       // Admin Route
       case 'AdminDashboard': content = <UsageDashboard onBack={() => setCurrentView('Sanctuary')} />; break;
 
+      // Export Center Route
+      case 'ExportCenter': content = <ExportCenter onBack={() => setCurrentView('Capture')} />; break;
+
+      // Vision Agent (Video Capture) Route
+      case 'VisionAgent': content = <VisionAgent />; break;
+
+      // Pattern Dashboard Route
+      case 'PatternDashboard': content = <PatternDashboard onBack={() => setCurrentView('Sanctuary')} />; break;
+
+      // Wave 3: Skills & Education Routes
+      case 'SkillTracker': content = <SkillTracker onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'StrategyLibrary': content = <StrategyLibrary onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'TheoryHub': content = <TheoryHub onBack={() => setCurrentView('Sanctuary')} />; break;
+
+      // Wave 4: Lifetime Continuity Routes
+      case 'LegacyCenter': content = <LegacyCenter onBack={() => setCurrentView('Sanctuary')} />; break;
+
+      // Wave 5: Wellness & Community Routes
+      case 'WellnessHub': content = <WellnessHub onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'CommunityHub': content = <CommunityHub onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'RespiteCenter': content = <RespiteCenter onBack={() => setCurrentView('Sanctuary')} />; break;
+
       default: content = <Dashboard onNavigate={setCurrentView} />;
     }
 
@@ -169,7 +212,7 @@ function AppContent() {
   };
 
   // Hide bottom nav for certain views
-  const hideNav = ['Passport', 'Vault', 'Onboarding', 'ProfessionalDashboard', 'About', 'AdminDashboard'].includes(currentView);
+  const hideNav = ['Passport', 'Vault', 'Onboarding', 'ProfessionalDashboard', 'About', 'AdminDashboard', 'ExportCenter', 'VisionAgent'].includes(currentView);
 
   if (hideNav) {
     return (
@@ -177,7 +220,7 @@ function AppContent() {
         {/* Back Button */}
         <button
           onClick={() => setCurrentView('Sanctuary')}
-          className="fixed top-6 left-6 z-50 px-4 py-2 rounded-full bg-white/40 backdrop-blur-md font-semibold text-sm flex items-center gap-2"
+          className="fixed top-6 right-6 z-50 px-4 py-2 rounded-full bg-white/40 backdrop-blur-md font-semibold text-sm flex items-center gap-2"
           style={{ color: 'var(--text-primary)' }}
         >
           ← Back
@@ -190,6 +233,11 @@ function AppContent() {
   return (
     <Layout currentTab={currentView} onTabChange={setCurrentView}>
       {renderView()}
+      <DevWorkstation
+        currentView={currentView}
+        onNavigate={setCurrentView}
+        onSkipOnboarding={() => setShowOnboarding(false)}
+      />
     </Layout>
   );
 }

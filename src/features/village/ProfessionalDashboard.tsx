@@ -251,7 +251,7 @@ export const ProfessionalDashboard = ({
                             <ul className="space-y-2">
                                 {narrative.environmentalConsiderations.map((item, i) => (
                                     <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-primary)' }}>
-                                        <Brain className="w-4 h-4 text-[#4B0082] flex-shrink-0 mt-0.5" />
+                                        <Brain className="w-4 h-4 text-[#4B0082] shrink-0 mt-0.5" />
                                         {item}
                                     </li>
                                 ))}
@@ -329,7 +329,7 @@ export const ProfessionalDashboard = ({
                             <ul className="space-y-2">
                                 {narrative.classroomStrategies.map((strategy, i) => (
                                     <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-primary)' }}>
-                                        <ChevronRight className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                                        <ChevronRight className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                                         {strategy}
                                     </li>
                                 ))}
@@ -344,7 +344,7 @@ export const ProfessionalDashboard = ({
                             <ul className="space-y-2">
                                 {narrative.transitionSupports.map((support, i) => (
                                     <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-primary)' }}>
-                                        <Calendar className="w-4 h-4 text-[#4B0082] flex-shrink-0 mt-0.5" />
+                                        <Calendar className="w-4 h-4 text-[#4B0082] shrink-0 mt-0.5" />
                                         {support}
                                     </li>
                                 ))}
@@ -359,7 +359,7 @@ export const ProfessionalDashboard = ({
                             <ul className="space-y-2">
                                 {narrative.sensoryConsiderations.map((item, i) => (
                                     <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-primary)' }}>
-                                        <Sparkles className="w-4 h-4 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+                                        <Sparkles className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
                                         {item}
                                     </li>
                                 ))}

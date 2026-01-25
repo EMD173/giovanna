@@ -654,7 +654,7 @@ export const InstitutionalVault = () => {
             <button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full py-4 rounded-full font-bold bg-gradient-to-r from-[#4B0082] to-[#6B238E] text-white flex items-center justify-center gap-2 hover:shadow-xl transition-all disabled:opacity-50"
+                className="w-full py-4 rounded-full font-bold bg-linear-to-r from-[#4B0082] to-[#6B238E] text-white flex items-center justify-center gap-2 hover:shadow-xl transition-all disabled:opacity-50"
             >
                 {saving ? (
                     <Loader2 className="w-5 h-5 animate-spin" />

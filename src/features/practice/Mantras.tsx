@@ -242,7 +242,7 @@ export const Mantras = () => {
                     }}
                 >
                     <div className="flex gap-3">
-                        <Sparkles className="w-5 h-5 flex-shrink-0" style={{ color: '#A78BFA' }} />
+                        <Sparkles className="w-5 h-5 shrink-0" style={{ color: '#A78BFA' }} />
                         <div>
                             <p className="text-sm font-medium mb-1">Oracle Insight</p>
                             <p className="text-xs opacity-70">

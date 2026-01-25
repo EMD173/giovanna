@@ -30,14 +30,20 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == ownerId;
     }
 
-    // Check if request is from the resource owner
+    // Check if request is from the resource owner (checks both ownerId and userId)
     function isResourceOwner() {
-      return isAuthenticated() && request.auth.uid == resource.data.ownerId;
+      return isAuthenticated() && (
+        request.auth.uid == resource.data.ownerId ||
+        request.auth.uid == resource.data.userId
+      );
     }
 
-    // Check if creating data has correct owner
+    // Check if creating data has correct owner (checks both ownerId and userId)
     function isCreatingOwnData() {
-      return isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      return isAuthenticated() && (
+        request.resource.data.ownerId == request.auth.uid ||
+        request.resource.data.userId == request.auth.uid
+      );
     }
 
     // Check if Village Key permission is valid and not expired
@@ -189,6 +195,62 @@ service cloud.firestore {
       
       // Only system can write (no direct user writes)
       allow write: if false;
+    }
+
+    // ========================================================================
+    // USER SUB-COLLECTIONS (Oracle Chats, Notifications)
+    // ========================================================================
+
+    match /users/{userId}/oracleConversations/{conversationId} {
+      // User can only access their own conversations
+      allow read, write: if isOwner(userId);
+    }
+
+    match /users/{userId}/notifications/{notificationId} {
+      // User can only access their own notifications
+      allow read, write: if isOwner(userId);
+    }
+
+    // ========================================================================
+    // CARE TEAMS (Village)
+    // ========================================================================
+
+    match /care_teams/{teamId} {
+      // Owner can read/write their own care team
+      allow read: if isAuthenticated() 
+        && (resource.data.ownerId == request.auth.uid 
+            || request.auth.uid in resource.data.memberIds);
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    match /published_observations/{obsId} {
+      // Published observations readable by care team members
+      allow read: if isAuthenticated();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // TEAMS (Legacy)
+    // ========================================================================
+
+    match /teams/{teamId} {
+      allow read: if isAuthenticated() 
+        && (resource.data.ownerId == request.auth.uid 
+            || request.auth.uid in resource.data.memberIds);
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
+    }
+
+    // ========================================================================
+    // REFLECTIONS
+    // ========================================================================
+
+    match /reflections/{reflectionId} {
+      allow read: if isResourceOwner();
+      allow create: if isCreatingOwnData();
+      allow update, delete: if isResourceOwner();
     }
 
     // ========================================================================

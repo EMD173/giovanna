@@ -269,13 +269,13 @@ export const AboutEli = () => {
                                 {/* Timeline line */}
                                 {index < LEGACY_TIMELINE.length - 1 && (
                                     <div
-                                        className="absolute left-[18px] top-8 w-0.5 h-full bg-gradient-to-b from-[#4B0082] to-[#D4AF37]"
+                                        className="absolute left-[18px] top-8 w-0.5 h-full bg-linear-to-b from-[#4B0082] to-[#D4AF37]"
                                     />
                                 )}
 
                                 {/* Timeline dot */}
                                 <div
-                                    className="absolute left-0 top-0 w-9 h-9 rounded-full bg-gradient-to-br from-[#4B0082] to-[#D4AF37] flex items-center justify-center text-white"
+                                    className="absolute left-0 top-0 w-9 h-9 rounded-full bg-linear-to-br from-[#4B0082] to-[#D4AF37] flex items-center justify-center text-white"
                                 >
                                     {event.icon}
                                 </div>

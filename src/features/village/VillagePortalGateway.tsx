@@ -116,7 +116,7 @@ export const VillagePortalGateway = ({ passport, childName, onClose }: VillagePo
         <div className="min-h-screen pb-32 px-4 pt-6" style={{ backgroundColor: 'rgb(var(--glass-base))' }}>
             {/* Header */}
             <header className="mb-6 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#4B0082] flex items-center justify-center shadow-lg">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-linear-to-br from-[#D4AF37] to-[#4B0082] flex items-center justify-center shadow-lg">
                     <Shield className="w-8 h-8 text-white" />
                 </div>
                 <h1

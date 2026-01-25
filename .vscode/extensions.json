@@ -1,0 +1,29 @@
+{
+    "recommendations": [
+        // Essential for React/TypeScript
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        // TypeScript & React
+        "dsznajder.es7-react-js-snippets",
+        "burkeholland.simple-react-snippets",
+        // Better Developer Experience
+        "usernamehw.errorlens",
+        "christian-kohler.npm-intellisense",
+        "christian-kohler.path-intellisense",
+        // Git & GitHub
+        "eamodio.gitlens",
+        "donjayamanne.githistory",
+        // Code Quality
+        "sonarsource.sonarlint-vscode",
+        "streetsidesoftware.code-spell-checker",
+        // CSS & Styling
+        "stylelint.vscode-stylelint",
+        "csstools.postcss",
+        // Productivity
+        "formulahendry.auto-rename-tag",
+        "naumovs.color-highlight",
+        "pkief.material-icon-theme"
+    ],
+    "unwantedRecommendations": []
+}

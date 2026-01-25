@@ -274,7 +274,7 @@ export const ConsistencyModePanel = ({
                     style={{ background: 'rgba(34, 197, 94, 0.1)' }}
                 >
                     <p className="flex items-start gap-2">
-                        <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#22C55E' }} />
+                        <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#22C55E' }} />
                         <span className="opacity-80">
                             <strong>1-3 words only.</strong> Every extra word is a processing demand.
                             Keep prompts short and direct.

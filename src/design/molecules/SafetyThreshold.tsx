@@ -10,13 +10,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    AlertTriangle,
-    Phone,
-    X,
-    Heart,
-    Shield
-} from 'lucide-react';
+import { IconAlertTriangle, IconPhone, IconX, IconHeart, IconShield } from '@tabler/icons-react';
 
 // ============================================================================
 // CRISIS RESOURCES
@@ -70,7 +64,7 @@ export const SafetyFooter = () => (
             style={{ pointerEvents: 'auto' }}
         >
             <p className="text-xs opacity-50 flex items-center justify-center gap-2">
-                <Shield className="w-3 h-3 opacity-60" />
+                <IconShield className="w-3 h-3 opacity-60" />
                 <span>
                     Grounded in Critical Systems Theory; Oracle can err.
                     Consult physicians for medical truth.
@@ -144,7 +138,7 @@ export const SOSPulse = ({ className = '' }: SOSPulseProps) => {
                         background: 'rgba(239, 68, 68, 0.4)',
                     }}
                 />
-                <Phone className="w-6 h-6 text-white relative z-10" />
+                <IconPhone className="w-6 h-6 text-white relative z-10" />
             </motion.button>
 
             {/* Crisis Resources Modal */}
@@ -183,7 +177,7 @@ export const SOSPulse = ({ className = '' }: SOSPulseProps) => {
                                         className="p-2 rounded-xl"
                                         style={{ background: 'rgba(239, 68, 68, 0.2)' }}
                                     >
-                                        <AlertTriangle className="w-5 h-5 text-red-400" />
+                                        <IconAlertTriangle className="w-5 h-5 text-red-400" />
                                     </div>
                                     <div>
                                         <h2 className="font-bold text-lg">Crisis Support</h2>
@@ -199,7 +193,7 @@ export const SOSPulse = ({ className = '' }: SOSPulseProps) => {
                                     }}
                                     className="p-2 rounded-full hover:bg-white/10"
                                 >
-                                    <X className="w-5 h-5 opacity-60" />
+                                    <IconX className="w-5 h-5 opacity-60" />
                                 </button>
                             </div>
 
@@ -260,7 +254,7 @@ export const SOSPulse = ({ className = '' }: SOSPulseProps) => {
                                     style={{ background: 'rgba(139, 92, 246, 0.1)' }}
                                 >
                                     <div className="flex items-start gap-3">
-                                        <Heart className="w-5 h-5 mt-0.5" style={{ color: '#A78BFA' }} />
+                                        <IconHeart className="w-5 h-5 mt-0.5" style={{ color: '#A78BFA' }} />
                                         <div>
                                             <p className="text-sm font-medium mb-1">
                                                 You are doing hard things.

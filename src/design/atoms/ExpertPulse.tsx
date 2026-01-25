@@ -193,7 +193,7 @@ export const ExpertPulse = ({ compact = false, onExpand }: ExpertPulseProps) => 
             {/* Insight */}
             <div className="mt-4 p-3 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30">
                 <p className="text-xs flex items-start gap-2" style={{ color: 'var(--text-primary)' }}>
-                    <Sparkles className="w-4 h-4 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+                    <Sparkles className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
                     <span>
                         Home observations reveal capacities that institutional assessments may not capture.
                         Your documentation is expert data.

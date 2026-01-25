@@ -13,7 +13,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle, Video, X, Play } from 'lucide-react';
+import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle, FileText, Video, X, Play } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { saveObservation } from '../../core/firebase/firestore';
@@ -71,7 +71,35 @@ const BIOLOGICAL_STATES = [
 
 type BiologicalState = typeof BIOLOGICAL_STATES[number]['label'];
 
-export const Capture = () => {
+// Quick Observation Templates - One-tap presets for common moments
+const QUICK_TEMPLATES = [
+    { id: 'morning', label: 'Morning Check-in', emoji: '🌅', prompt: 'Starting the day...', suggestedChannels: [] as ResonanceChannel[] },
+    { id: 'meltdown', label: 'Meltdown', emoji: '🌪️', prompt: 'There was an intense moment...', suggestedChannels: ['Seeking Safety', 'Sensory Need'] as ResonanceChannel[] },
+    { id: 'win', label: 'Win of the Day', emoji: '🏆', prompt: 'A moment of pride...', suggestedChannels: ['Joy Expression'] as ResonanceChannel[] },
+    { id: 'transition', label: 'Transition', emoji: '🚗', prompt: 'Navigating a change...', suggestedChannels: ['Transition Signal'] as ResonanceChannel[] },
+    { id: 'connection', label: 'Beautiful Connection', emoji: '💜', prompt: 'We had a special moment...', suggestedChannels: ['Connection Bid', 'Joy Expression'] as ResonanceChannel[] },
+    { id: 'sensory', label: 'Sensory Moment', emoji: '🎧', prompt: 'Sensory experience noted...', suggestedChannels: ['Sensory Need', 'Body Wisdom'] as ResonanceChannel[] },
+] as const;
+
+// Location Tags - Where did it happen?
+const LOCATIONS = [
+    { id: 'home', label: 'Home', emoji: '🏠' },
+    { id: 'school', label: 'School', emoji: '🏫' },
+    { id: 'therapy', label: 'Therapy', emoji: '🧠' },
+    { id: 'public', label: 'Public', emoji: '🛒' },
+    { id: 'car', label: 'In the Car', emoji: '🚗' },
+    { id: 'outdoors', label: 'Outdoors', emoji: '🌳' },
+    { id: 'relatives', label: 'Relatives', emoji: '👨‍👩‍👧' },
+    { id: 'other', label: 'Other', emoji: '📍' },
+] as const;
+
+type LocationId = typeof LOCATIONS[number]['id'];
+
+interface CaptureProps {
+  onNavigate?: (view: string) => void;
+}
+
+export const Capture = ({ onNavigate }: CaptureProps) => {
     const { user } = useAuthStore();
     const [strengthNarrative, setStrengthNarrative] = useState('');
     const [selectedChannels, setSelectedChannels] = useState<ResonanceChannel[]>([]);
@@ -80,6 +108,11 @@ export const Capture = () => {
     const [biologicalStates, setBiologicalStates] = useState<BiologicalState[]>([]);
     const [saving, setSaving] = useState(false);
     const [showGoldShimmer, setShowGoldShimmer] = useState(false);
+
+    // New state for Quick Templates, Location, and Intensity
+    const [selectedLocation, setSelectedLocation] = useState<LocationId | null>(null);
+    const [intensity, setIntensity] = useState<number>(5); // 1-10 scale
+    const [showTemplates, setShowTemplates] = useState(true);
 
     // Vocal Capture State
     const [isRecording, setIsRecording] = useState(false);
@@ -214,15 +247,34 @@ export const Capture = () => {
         setAttachedMedia(prev => prev.filter((_, i) => i !== index));
     };
 
+    // Apply a quick template
+    const applyTemplate = (template: typeof QUICK_TEMPLATES[number]) => {
+        setStrengthNarrative(template.prompt);
+        setSelectedChannels(template.suggestedChannels as ResonanceChannel[]);
+        setShowTemplates(false); // Hide templates after selection
+    };
+
     const handleHonor = async () => {
         if (!user || !strengthNarrative.trim()) return;
 
         setSaving(true);
         try {
+            // Build location string
+            const locationLabel = selectedLocation 
+                ? LOCATIONS.find(l => l.id === selectedLocation)?.label || ''
+                : '';
+            
+            // Combine atmospheric context with location and intensity
+            const fullContext = [
+                atmosphericResonance,
+                locationLabel && `Location: ${locationLabel}`,
+                `Intensity: ${intensity}/10`,
+            ].filter(Boolean).join(' | ');
+
             await saveObservation(user.uid, {
                 strengthNarrative,
                 channels: selectedChannels,
-                atmosphericResonance,
+                atmosphericResonance: fullContext,
                 relationalReciprocity,
                 biologicalNeeds: biologicalStates.join(', '),
                 media: attachedMedia.length > 0 ? attachedMedia : undefined,
@@ -240,6 +292,9 @@ export const Capture = () => {
                 setRelationalReciprocity(3);
                 setBiologicalStates([]);
                 setAttachedMedia([]);
+                setSelectedLocation(null);
+                setIntensity(5);
+                setShowTemplates(true);
             }, 500);
 
         } catch (error) {
@@ -299,13 +354,103 @@ export const Capture = () => {
                 <p className="text-sm mt-2 opacity-70" style={{ color: 'var(--text-secondary)' }}>
                     Every signal is an invitation to understand.
                 </p>
+                
+                {/* Centering Cue for Parents */}
+                <div className="mt-4 p-3 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/20">
+                    <p className="text-sm italic text-center" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>
+                        🌿 Take a breath. You are witnessing, not fixing.
+                    </p>
+                </div>
             </header>
+
+            {/* QUICK TEMPLATES - One-tap observation starters */}
+            {showTemplates && (
+                <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-bold opacity-80" style={{ color: 'var(--text-primary)' }}>
+                            Quick Start
+                        </h3>
+                        <button 
+                            onClick={() => setShowTemplates(false)}
+                            className="text-xs text-gray-500 hover:text-gray-700"
+                        >
+                            Hide
+                        </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {QUICK_TEMPLATES.map((template) => (
+                            <button
+                                key={template.id}
+                                onClick={() => applyTemplate(template)}
+                                className="px-3 py-2 rounded-xl text-sm font-medium transition-all bg-white/40 border border-white/50 hover:bg-white/60 hover:scale-[1.02] active:scale-95 shadow-sm"
+                                style={{ color: 'var(--text-primary)' }}
+                            >
+                                <span className="mr-1">{template.emoji}</span>
+                                {template.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* LOCATION & INTENSITY - Quick context selectors */}
+            <div className="flex gap-3 mb-4">
+                {/* Location Selector */}
+                <div className="flex-1 glass-panel p-3 rounded-2xl">
+                    <label className="text-xs font-bold opacity-70 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                        📍 Where?
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                        {LOCATIONS.map(loc => (
+                            <button
+                                key={loc.id}
+                                onClick={() => setSelectedLocation(selectedLocation === loc.id ? null : loc.id)}
+                                className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
+                                    selectedLocation === loc.id
+                                        ? 'bg-[#4B0082] text-white shadow-sm'
+                                        : 'bg-white/30 text-gray-700 hover:bg-white/50'
+                                }`}
+                            >
+                                {loc.emoji}
+                            </button>
+                        ))}
+                    </div>
+                    {selectedLocation && (
+                        <p className="text-xs mt-1.5 opacity-60">
+                            {LOCATIONS.find(l => l.id === selectedLocation)?.label}
+                        </p>
+                    )}
+                </div>
+
+                {/* Intensity Slider */}
+                <div className="flex-1 glass-panel p-3 rounded-2xl">
+                    <label className="text-xs font-bold opacity-70 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                        ⚡ Intensity
+                    </label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={intensity}
+                        onChange={(e) => setIntensity(Number(e.target.value))}
+                        className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                        style={{
+                            background: `linear-gradient(to right, #4B0082 0%, #4B0082 ${(intensity - 1) * 11.1}%, #e5e7eb ${(intensity - 1) * 11.1}%, #e5e7eb 100%)`,
+                        }}
+                    />
+                    <div className="flex justify-between mt-1">
+                        <span className="text-xs opacity-50">Calm</span>
+                        <span className="text-sm font-bold" style={{ color: 'var(--accent-regal)' }}>{intensity}</span>
+                        <span className="text-xs opacity-50">Intense</span>
+                    </div>
+                </div>
+            </div>
 
             {/* STRENGTH NARRATIVE (Main Text Area) */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
                 <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-bold uppercase tracking-wider opacity-60">
-                        Strength Narrative
+                    <label className="text-sm font-bold opacity-80" style={{ color: 'var(--text-primary)' }}>
+                        What did you witness?
                     </label>
 
                     {/* VOCAL CAPTURE BUTTON - Gold Leaf Premium */}
@@ -367,20 +512,20 @@ export const Capture = () => {
                 />
             </div>
 
-            {/* RELATIONAL RECIPROCITY - Glass Slider */}
+            {/* CONNECTION LEVEL - Simplified */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2 block">
-                    Relational Reciprocity
+                <label className="text-sm font-bold opacity-80 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                    How connected did you feel?
                 </label>
                 <p className="text-sm opacity-60 mb-4" style={{ fontFamily: 'var(--font-body)' }}>
-                    How connected did you feel in this moment?
+                    Trust your gut — there's no wrong answer.
                 </p>
 
                 {/* Glass Slider Track */}
                 <div className="relative h-12 bg-white/20 rounded-2xl overflow-hidden mb-2">
                     {/* Fill */}
                     <div
-                        className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#4B0082]/60 to-[#4B0082] transition-all duration-300 rounded-2xl"
+                        className="absolute left-0 top-0 h-full bg-linear-to-r from-[#4B0082]/60 to-[#4B0082] transition-all duration-300 rounded-2xl"
                         style={{ width: `${(relationalReciprocity / 5) * 100}%` }}
                     />
 
@@ -404,13 +549,13 @@ export const Capture = () => {
                 </p>
             </div>
 
-            {/* BIOLOGICAL STATE - Quick Tags */}
+            {/* BODY SIGNALS - Simplified */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2 block">
-                    Biological State
+                <label className="text-sm font-bold opacity-80 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                    What was happening in the body?
                 </label>
                 <p className="text-sm opacity-60 mb-3" style={{ fontFamily: 'var(--font-body)' }}>
-                    What was the body experiencing?
+                    Select all that apply — trust what you noticed.
                 </p>
                 <div className="flex flex-wrap gap-2">
                     {BIOLOGICAL_STATES.map(({ label, emoji }) => {
@@ -432,13 +577,13 @@ export const Capture = () => {
                 </div>
             </div>
 
-            {/* ATMOSPHERIC RESONANCE - Quick Note */}
+            {/* CONTEXT - Simplified */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2 block">
-                    Atmospheric Resonance
+                <label className="text-sm font-bold opacity-80 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                    What else was going on?
                 </label>
                 <p className="text-sm opacity-60 mb-3" style={{ fontFamily: 'var(--font-body)' }}>
-                    Systemic context (school stress, therapy day, rest day...)
+                    Any context that matters (school day, tired, transition...)
                 </p>
                 <input
                     type="text"
@@ -450,11 +595,12 @@ export const Capture = () => {
                 />
             </div>
 
-            {/* CHANNELS OF COMMUNICATION */}
+            {/* HOW THEY COMMUNICATED - Simplified */}
             <div className="mb-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider mb-3 opacity-60">
-                    Channels of Communication
+                <h3 className="text-sm font-bold opacity-80 mb-1" style={{ color: 'var(--text-primary)' }}>
+                    How did they communicate?
                 </h3>
+                <p className="text-xs opacity-60 mb-3">Select any that apply</p>
                 <div className="flex flex-wrap gap-2">
                     {RESONANCE_CHANNELS.map((channel) => {
                         const isSelected = selectedChannels.includes(channel);
@@ -545,13 +691,33 @@ export const Capture = () => {
                     >
                         <Camera className="w-5 h-5 text-[#4B0082]" />
                     </button>
+                    {/* Video Capture Button */}
+                    {onNavigate && (
+                        <button 
+                            onClick={() => onNavigate('VisionAgent')}
+                            className="p-3 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors shadow-sm border border-purple-300"
+                            title="Record video observation"
+                        >
+                            <Video className="w-5 h-5 text-[#4B0082]" />
+                        </button>
+                    )}
+                    {/* Export Button */}
+                    {onNavigate && (
+                        <button 
+                            onClick={() => onNavigate('ExportCenter')}
+                            className="p-3 rounded-full bg-[#D4AF37]/20 hover:bg-[#D4AF37]/40 transition-colors shadow-sm border border-[#D4AF37]/30"
+                            title="Export observations as PDF"
+                        >
+                            <FileText className="w-5 h-5 text-[#D4AF37]" />
+                        </button>
+                    )}
                 </div>
 
                 <button
                     onClick={handleHonor}
                     disabled={!strengthNarrative.trim() || saving}
                     className={`flex items-center space-x-2 px-6 py-3 rounded-full font-bold transition-all shadow-lg ${strengthNarrative.trim() && !saving
-                        ? 'bg-gradient-to-r from-[#4B0082] to-[#6B238E] text-white hover:shadow-xl active:scale-95'
+                        ? 'bg-linear-to-r from-[#4B0082] to-[#6B238E] text-white hover:shadow-xl active:scale-95'
                         : 'bg-gray-300/50 text-gray-500'
                         }`}
                 >

@@ -9,7 +9,23 @@
  */
 
 import { useEffect, useState } from 'react';
-import { CloudSun, Battery, CalendarClock, ChevronRight, Sparkles, Heart, AlertTriangle, BookOpen, ToggleLeft, ToggleRight, BarChart3, Target, Brain, Stethoscope, Flame, Gamepad2 } from 'lucide-react';
+import { 
+    IconSchool, 
+    IconMoodKid, 
+    IconMicrophone2, 
+    IconChevronRight, 
+    IconEPassport, 
+    IconHeartHandshake, 
+    IconAlertHexagon, 
+    IconToggleLeft, 
+    IconToggleRight, 
+    IconChartDots3,
+    IconShieldLock,
+    IconHeart,
+    IconSparkles,
+    IconBattery,
+    IconBrain,
+} from '@tabler/icons-react';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { useSanctuaryPulse } from '../../core/stores/useSanctuaryPulse';
 import { RegulationGlow } from '../../design/atoms/RegulationGlow';
@@ -29,6 +45,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
     const [teacherMode, setTeacherMode] = useState(false);
 
     // Refresh sanctuary pulse and fetch profile on mount
+    // Note: pulse is intentionally omitted from deps to prevent infinite re-renders
     useEffect(() => {
         if (user) {
             pulse.refresh(user.uid).then(() => setIsLoaded(true));
@@ -64,15 +81,15 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
     // Determine pulse message based on state
     const getPulseMessage = () => {
         if (pulse.systemicStressDetected) {
-            return { text: "Systems are weighing heavy. Remember to breathe.", icon: AlertTriangle, color: '#4B0082' };
+            return { text: "Systems are weighing heavy. Remember to breathe.", icon: IconAlertHexagon, color: '#4B0082' };
         }
         if (pulse.averageReciprocity >= 4) {
-            return { text: "Connection is flowing. Honor this rhythm.", icon: Heart, color: '#D4AF37' };
+            return { text: "Connection is flowing. Honor this rhythm.", icon: IconHeart, color: '#D4AF37' };
         }
         if (pulse.averageReciprocity <= 2) {
-            return { text: "Disconnection is data, not failure. What does rest look like?", icon: Battery, color: '#4B0082' };
+            return { text: "Disconnection is data, not failure. What does rest look like?", icon: IconBattery, color: '#4B0082' };
         }
-        return { text: "The sanctuary is present. Witness what arises.", icon: Sparkles, color: '#4B0082' };
+        return { text: "The sanctuary is present. Witness what arises.", icon: IconSparkles, color: '#4B0082' };
     };
 
     const pulseMessage = getPulseMessage();
@@ -112,7 +129,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                 <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-xl transition-colors ${teacherMode ? 'bg-[#D4AF37]/20' : 'bg-white/40'
                         }`}>
-                        <BookOpen className={`w-5 h-5 ${teacherMode ? 'text-[#D4AF37]' : 'opacity-50'
+                        <IconSchool className={`w-5 h-5 ${teacherMode ? 'text-[#D4AF37]' : 'opacity-50'
                             }`} />
                     </div>
                     <div>
@@ -127,14 +144,14 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                 <button
                     onClick={() => setTeacherMode(!teacherMode)}
                     className={`p-1 rounded-full transition-all ${teacherMode
-                        ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] shadow-lg'
+                        ? 'bg-linear-to-r from-[#D4AF37] to-[#FFD700] shadow-lg'
                         : 'bg-gray-200'
                         }`}
                 >
                     {teacherMode ? (
-                        <ToggleRight className="w-8 h-8 text-white" />
+                        <IconToggleRight className="w-8 h-8 text-white" />
                     ) : (
-                        <ToggleLeft className="w-8 h-8 text-gray-400" />
+                        <IconToggleLeft className="w-8 h-8 text-gray-400" />
                     )}
                 </button>
             </div>
@@ -220,7 +237,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                         Witness Moment
                     </button>
                     <button
-                        onClick={() => onNavigate && onNavigate('Journey')}
+                        onClick={() => onNavigate && onNavigate('PatternDashboard')}
                         className="px-4 py-3 rounded-2xl bg-white/40 border border-white/50 font-bold text-sm active:scale-95 transition-all hover:bg-white/60"
                         style={{ color: 'var(--text-primary)' }}
                     >
@@ -250,13 +267,13 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                     style={dynamicGlassStyle}
                 >
                     <div className="h-12 w-12 rounded-2xl bg-[#FFE4E1] flex items-center justify-center text-[#D2691E]">
-                        <CloudSun className="w-6 h-6" />
+                        <IconMoodKid className="w-6 h-6" />
                     </div>
                     <div className="flex-1">
                         <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>Sensory Break</h4>
                         <p className="text-sm opacity-60" style={{ color: 'var(--text-primary)' }}>4:30 PM • Living Room</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 opacity-30" style={{ color: 'var(--text-primary)' }} />
+                    <IconChevronRight className="w-5 h-5 opacity-30" style={{ color: 'var(--text-primary)' }} />
                 </button>
 
                 <button
@@ -265,13 +282,13 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                     style={dynamicGlassStyle}
                 >
                     <div className="h-12 w-12 rounded-2xl bg-[#E6E6FA] flex items-center justify-center text-[#4B0082]">
-                        <CalendarClock className="w-6 h-6" />
+                        <IconMicrophone2 className="w-6 h-6" />
                     </div>
                     <div className="flex-1">
                         <h4 className="font-bold" style={{ color: 'var(--text-primary)' }}>Speech Therapy</h4>
                         <p className="text-sm opacity-60" style={{ color: 'var(--text-primary)' }}>5:15 PM • Zoom</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 opacity-30" style={{ color: 'var(--text-primary)' }} />
+                    <IconChevronRight className="w-5 h-5 opacity-30" style={{ color: 'var(--text-primary)' }} />
                 </button>
             </div>
 
@@ -288,7 +305,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
                             <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/20 flex items-center justify-center mb-2">
-                                <Sparkles className="w-5 h-5 text-[#D4AF37]" />
+                                <IconEPassport className="w-5 h-5 text-[#D4AF37]" />
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                                 Digital Passport
@@ -301,7 +318,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
                             <div className="w-10 h-10 rounded-xl bg-[#4B0082]/20 flex items-center justify-center mb-2">
-                                <Battery className="w-5 h-5 text-[#4B0082]" />
+                                <IconShieldLock className="w-5 h-5 text-[#4B0082]" />
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                                 Institutional Vault
@@ -310,89 +327,118 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                         </button>
 
                         <button
-                            onClick={() => onNavigate('Skills')}
-                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                            onClick={() => onNavigate('PatternDashboard')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform gold-leaf-border"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center mb-2">
-                                <Target className="w-5 h-5 text-green-600" />
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4B0082]/20 to-[#D4AF37]/20 flex items-center justify-center mb-2">
+                                <IconBrain className="w-5 h-5 text-[#4B0082]" />
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
-                                Skills Tracker
+                                Pattern Intelligence
                             </p>
-                            <p className="text-xs opacity-60">Growth & Progress</p>
+                            <p className="text-xs opacity-60">AI-powered insights</p>
+                        </button>
+
+                        {/* Wave 3: Skills & Education */}
+                        <button
+                            onClick={() => onNavigate('SkillTracker')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-[#16A34A]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🏋️</span>
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Skill Tracker
+                            </p>
+                            <p className="text-xs opacity-60">Track milestones</p>
                         </button>
 
                         <button
-                            onClick={() => onNavigate('Memory')}
+                            onClick={() => onNavigate('StrategyLibrary')}
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center mb-2">
-                                <Brain className="w-5 h-5 text-purple-600" />
+                            <div className="w-10 h-10 rounded-xl bg-[#7C3AED]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🛠️</span>
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
-                                Memory
+                                Strategies
                             </p>
-                            <p className="text-xs opacity-60">Learned Patterns</p>
+                            <p className="text-xs opacity-60">What works</p>
                         </button>
 
                         <button
-                            onClick={() => onNavigate('Progress')}
+                            onClick={() => onNavigate('TheoryHub')}
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mb-2">
-                                <BarChart3 className="w-5 h-5 text-blue-600" />
+                            <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">📚</span>
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
-                                Progress
+                                Learn
                             </p>
-                            <p className="text-xs opacity-60">Reports & Analytics</p>
+                            <p className="text-xs opacity-60">Parent education</p>
                         </button>
 
+                        {/* Wave 4: Lifetime Continuity */}
                         <button
-                            onClick={() => onNavigate('Therapy')}
-                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                            onClick={() => onNavigate('LegacyCenter')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform col-span-2"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center mb-2">
-                                <Stethoscope className="w-5 h-5 text-teal-600" />
+                            <div className="w-10 h-10 rounded-xl bg-[#DC2626]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🏛️</span>
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
-                                Therapy Prep
+                                Legacy Center
                             </p>
-                            <p className="text-xs opacity-60">Session Bridge</p>
+                            <p className="text-xs opacity-60">Continuity planning • Emergency documents</p>
                         </button>
 
+                        {/* Wave 5: Wellness & Community */}
                         <button
-                            onClick={() => onNavigate('Wellness')}
+                            onClick={() => onNavigate('WellnessHub')}
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EC4899]/20 to-[#8B5CF6]/20 flex items-center justify-center mb-2">
-                                <Flame className="w-5 h-5 text-[#EC4899]" />
+                            <div className="w-10 h-10 rounded-xl bg-[#EC4899]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🌸</span>
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                                 Wellness
                             </p>
-                            <p className="text-xs opacity-60">Self-care & Support</p>
+                            <p className="text-xs opacity-60">Check-ins</p>
                         </button>
 
                         <button
-                            onClick={() => onNavigate('Practice')}
+                            onClick={() => onNavigate('CommunityHub')}
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#EC4899]/20 flex items-center justify-center mb-2">
-                                <Gamepad2 className="w-5 h-5 text-[#8B5CF6]" />
+                            <div className="w-10 h-10 rounded-xl bg-[#16A34A]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🤝</span>
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
-                                Practice
+                                Community
                             </p>
-                            <p className="text-xs opacity-60">Playbook & Mantras</p>
+                            <p className="text-xs opacity-60">Resources</p>
+                        </button>
+
+                        <button
+                            onClick={() => onNavigate('RespiteCenter')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform col-span-2"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-[#0EA5E9]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">☕</span>
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Respite Center
+                            </p>
+                            <p className="text-xs opacity-60">Provider network • Self-care during breaks</p>
                         </button>
 
                         <button
                             onClick={() => onNavigate('About')}
-                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform col-span-2"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4B0082]/20 to-[#D4AF37]/20 flex items-center justify-center mb-2">
-                                <Heart className="w-5 h-5 text-[#4B0082]" />
+                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#4B0082]/20 to-[#D4AF37]/20 flex items-center justify-center mb-2">
+                                <IconHeartHandshake className="w-5 h-5 text-[#4B0082]" />
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                                 The Visionary Story
@@ -406,7 +452,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                             className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform opacity-60 hover:opacity-100"
                         >
                             <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/20 flex items-center justify-center mb-2">
-                                <BarChart3 className="w-5 h-5 text-[#D4AF37]" />
+                                <IconChartDots3 className="w-5 h-5 text-[#D4AF37]" />
                             </div>
                             <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                                 📊 Admin

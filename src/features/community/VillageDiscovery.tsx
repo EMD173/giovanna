@@ -280,7 +280,7 @@ export const VillageDiscovery = () => {
                     <div className="flex gap-2 pb-2">
                         <button
                             onClick={() => setSelectedCategory(null)}
-                            className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all"
+                            className="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all"
                             style={{
                                 background: selectedCategory === null
                                     ? 'rgba(212, 175, 55, 0.3)'
@@ -296,7 +296,7 @@ export const VillageDiscovery = () => {
                             <button
                                 key={key}
                                 onClick={() => setSelectedCategory(key as NarrativeCategory)}
-                                className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all"
+                                className="shrink-0 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all"
                                 style={{
                                     background: selectedCategory === key
                                         ? `${meta.color}30`

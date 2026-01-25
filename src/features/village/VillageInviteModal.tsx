@@ -278,7 +278,7 @@ export const VillageInviteModal = ({ isOpen, onClose, childName }: VillageInvite
                                 <button
                                     onClick={createInvite}
                                     disabled={loading}
-                                    className="w-full py-4 rounded-full font-bold bg-gradient-to-r from-[#4B0082] to-[#D4AF37] text-white disabled:opacity-50 flex items-center justify-center gap-2"
+                                    className="w-full py-4 rounded-full font-bold bg-linear-to-r from-[#4B0082] to-[#D4AF37] text-white disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {loading ? (
                                         <>
