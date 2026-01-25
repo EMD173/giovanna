@@ -25,6 +25,7 @@ import { Skills } from './features/skills/Skills';
 import { MemoryInsights } from './features/memory/MemoryInsights';
 import { ProgressDashboard } from './features/progress/ProgressDashboard';
 import { TherapySessionPrep } from './features/therapy/TherapySessionPrep';
+import { WellnessHub } from './features/wellness/WellnessHub';
 
 // Import Profile & Vault Components
 import { DigitalPassport } from './features/profile/DigitalPassport';
@@ -131,6 +132,7 @@ function AppContent() {
       case 'Memory': content = <MemoryInsights onNavigate={setCurrentView} />; break;
       case 'Progress': content = <ProgressDashboard onNavigate={setCurrentView} />; break;
       case 'Therapy': content = <TherapySessionPrep onNavigate={setCurrentView} />; break;
+      case 'Wellness': content = <WellnessHub onNavigate={setCurrentView} />; break;
 
       // Profile & Vault Routes
       case 'Passport': content = <DigitalPassport />; break;
