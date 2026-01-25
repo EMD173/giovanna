@@ -336,8 +336,21 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                         </button>
 
                         <button
+                            onClick={() => onNavigate('Progress')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mb-2">
+                                <BarChart3 className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Progress
+                            </p>
+                            <p className="text-xs opacity-60">Reports & Analytics</p>
+                        </button>
+
+                        <button
                             onClick={() => onNavigate('About')}
-                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform col-span-2"
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4B0082]/20 to-[#D4AF37]/20 flex items-center justify-center mb-2">
                                 <Heart className="w-5 h-5 text-[#4B0082]" />
