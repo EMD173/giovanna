@@ -43,7 +43,6 @@ import { SkillTracker } from './features/skills/SkillTracker';
 import { StrategyLibrary } from './features/resources/StrategyLibrary';
 import { TheoryHub } from './features/resources/TheoryHub';
 import { LegacyCenter } from './features/legacy/LegacyCenter';
-import { WellnessHub } from './features/wellness/WellnessHub';
 import { CommunityHub } from './features/community/CommunityHub';
 import { RespiteCenter } from './features/community/RespiteCenter';
 
@@ -154,7 +153,6 @@ function AppContent() {
       case 'Memory': content = <MemoryInsights onNavigate={setCurrentView} />; break;
       case 'Progress': content = <ProgressDashboard onNavigate={setCurrentView} />; break;
       case 'Therapy': content = <TherapySessionPrep onNavigate={setCurrentView} />; break;
-      case 'Wellness': content = <WellnessHub onNavigate={setCurrentView} />; break;
       case 'Practice': content = <PracticeHub onNavigate={setCurrentView} />; break;
 
       // Profile & Vault Routes
