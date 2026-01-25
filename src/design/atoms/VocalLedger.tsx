@@ -249,7 +249,7 @@ export const VocalLedger = ({ onCapture, onRefract, placeholder }: VocalLedgerPr
             {/* Error Display */}
             {error && (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
-                    <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
                     <p className="text-sm text-red-700">{error}</p>
                 </div>
             )}

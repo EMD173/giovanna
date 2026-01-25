@@ -334,7 +334,7 @@ export const IEPBridge = () => {
                                         className="flex items-start gap-2 text-sm"
                                         style={{ color: 'var(--text-primary)' }}
                                     >
-                                        <Shield className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                                        <Shield className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                                         {strategy}
                                     </li>
                                 ))}
@@ -674,7 +674,7 @@ export const IEPBridge = () => {
                     <button
                         onClick={handleGenerateCarePlan}
                         disabled={isGeneratingCarePlan}
-                        className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white flex items-center justify-center gap-2 hover:shadow-xl transition-all disabled:opacity-70"
+                        className="w-full py-4 rounded-xl font-bold bg-linear-to-r from-[#D4AF37] to-[#B8860B] text-white flex items-center justify-center gap-2 hover:shadow-xl transition-all disabled:opacity-70"
                     >
                         {isGeneratingCarePlan ? (
                             <>

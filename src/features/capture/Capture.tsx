@@ -13,7 +13,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle } from 'lucide-react';
+import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle, FileText } from 'lucide-react';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { saveObservation } from '../../core/firebase/firestore';
 import { RESONANCE_CHANNELS, type ResonanceChannel, type ReciprocityLevel } from '../../core/stores/types';
@@ -68,7 +68,11 @@ const BIOLOGICAL_STATES = [
 
 type BiologicalState = typeof BIOLOGICAL_STATES[number]['label'];
 
-export const Capture = () => {
+interface CaptureProps {
+  onNavigate?: (view: string) => void;
+}
+
+export const Capture = ({ onNavigate }: CaptureProps) => {
     const { user } = useAuthStore();
     const [strengthNarrative, setStrengthNarrative] = useState('');
     const [selectedChannels, setSelectedChannels] = useState<ResonanceChannel[]>([]);
@@ -273,13 +277,20 @@ export const Capture = () => {
                 <p className="text-sm mt-2 opacity-70" style={{ color: 'var(--text-secondary)' }}>
                     Every signal is an invitation to understand.
                 </p>
+                
+                {/* Centering Cue for Parents */}
+                <div className="mt-4 p-3 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/20">
+                    <p className="text-sm italic text-center" style={{ color: 'var(--text-primary)', opacity: 0.8 }}>
+                        🌿 Take a breath. You are witnessing, not fixing.
+                    </p>
+                </div>
             </header>
 
             {/* STRENGTH NARRATIVE (Main Text Area) */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
                 <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-bold uppercase tracking-wider opacity-60">
-                        Strength Narrative
+                    <label className="text-sm font-bold opacity-80" style={{ color: 'var(--text-primary)' }}>
+                        What did you witness?
                     </label>
 
                     {/* VOCAL CAPTURE BUTTON - Gold Leaf Premium */}
@@ -341,20 +352,20 @@ export const Capture = () => {
                 />
             </div>
 
-            {/* RELATIONAL RECIPROCITY - Glass Slider */}
+            {/* CONNECTION LEVEL - Simplified */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2 block">
-                    Relational Reciprocity
+                <label className="text-sm font-bold opacity-80 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                    How connected did you feel?
                 </label>
                 <p className="text-sm opacity-60 mb-4" style={{ fontFamily: 'var(--font-body)' }}>
-                    How connected did you feel in this moment?
+                    Trust your gut — there's no wrong answer.
                 </p>
 
                 {/* Glass Slider Track */}
                 <div className="relative h-12 bg-white/20 rounded-2xl overflow-hidden mb-2">
                     {/* Fill */}
                     <div
-                        className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#4B0082]/60 to-[#4B0082] transition-all duration-300 rounded-2xl"
+                        className="absolute left-0 top-0 h-full bg-linear-to-r from-[#4B0082]/60 to-[#4B0082] transition-all duration-300 rounded-2xl"
                         style={{ width: `${(relationalReciprocity / 5) * 100}%` }}
                     />
 
@@ -378,13 +389,13 @@ export const Capture = () => {
                 </p>
             </div>
 
-            {/* BIOLOGICAL STATE - Quick Tags */}
+            {/* BODY SIGNALS - Simplified */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2 block">
-                    Biological State
+                <label className="text-sm font-bold opacity-80 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                    What was happening in the body?
                 </label>
                 <p className="text-sm opacity-60 mb-3" style={{ fontFamily: 'var(--font-body)' }}>
-                    What was the body experiencing?
+                    Select all that apply — trust what you noticed.
                 </p>
                 <div className="flex flex-wrap gap-2">
                     {BIOLOGICAL_STATES.map(({ label, emoji }) => {
@@ -406,13 +417,13 @@ export const Capture = () => {
                 </div>
             </div>
 
-            {/* ATMOSPHERIC RESONANCE - Quick Note */}
+            {/* CONTEXT - Simplified */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
-                <label className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2 block">
-                    Atmospheric Resonance
+                <label className="text-sm font-bold opacity-80 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                    What else was going on?
                 </label>
                 <p className="text-sm opacity-60 mb-3" style={{ fontFamily: 'var(--font-body)' }}>
-                    Systemic context (school stress, therapy day, rest day...)
+                    Any context that matters (school day, tired, transition...)
                 </p>
                 <input
                     type="text"
@@ -424,11 +435,12 @@ export const Capture = () => {
                 />
             </div>
 
-            {/* CHANNELS OF COMMUNICATION */}
+            {/* HOW THEY COMMUNICATED - Simplified */}
             <div className="mb-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider mb-3 opacity-60">
-                    Channels of Communication
+                <h3 className="text-sm font-bold opacity-80 mb-1" style={{ color: 'var(--text-primary)' }}>
+                    How did they communicate?
                 </h3>
+                <p className="text-xs opacity-60 mb-3">Select any that apply</p>
                 <div className="flex flex-wrap gap-2">
                     {RESONANCE_CHANNELS.map((channel) => {
                         const isSelected = selectedChannels.includes(channel);
@@ -458,13 +470,23 @@ export const Capture = () => {
                     <button className="p-3 rounded-full bg-white/40 hover:bg-white/60 transition-colors shadow-sm">
                         <Camera className="w-5 h-5 text-[#4B0082]" />
                     </button>
+                    {/* Export Button */}
+                    {onNavigate && (
+                        <button 
+                            onClick={() => onNavigate('ExportCenter')}
+                            className="p-3 rounded-full bg-[#D4AF37]/20 hover:bg-[#D4AF37]/40 transition-colors shadow-sm border border-[#D4AF37]/30"
+                            title="Export observations as PDF"
+                        >
+                            <FileText className="w-5 h-5 text-[#D4AF37]" />
+                        </button>
+                    )}
                 </div>
 
                 <button
                     onClick={handleHonor}
                     disabled={!strengthNarrative.trim() || saving}
                     className={`flex items-center space-x-2 px-6 py-3 rounded-full font-bold transition-all shadow-lg ${strengthNarrative.trim() && !saving
-                        ? 'bg-gradient-to-r from-[#4B0082] to-[#6B238E] text-white hover:shadow-xl active:scale-95'
+                        ? 'bg-linear-to-r from-[#4B0082] to-[#6B238E] text-white hover:shadow-xl active:scale-95'
                         : 'bg-gray-300/50 text-gray-500'
                         }`}
                 >

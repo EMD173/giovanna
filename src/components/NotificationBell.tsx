@@ -153,7 +153,7 @@ export const NotificationBell = () => {
                                         >
                                             <div className="flex gap-3">
                                                 <div
-                                                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                                                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                                                     style={{ backgroundColor: `${color}15` }}
                                                 >
                                                     <Icon className="w-5 h-5" style={{ color }} />
@@ -164,7 +164,7 @@ export const NotificationBell = () => {
                                                             {notification.title}
                                                         </p>
                                                         {!notification.read && (
-                                                            <span className="w-2 h-2 rounded-full bg-[#4B0082] flex-shrink-0" />
+                                                            <span className="w-2 h-2 rounded-full bg-[#4B0082] shrink-0" />
                                                         )}
                                                     </div>
                                                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
