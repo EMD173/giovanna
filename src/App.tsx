@@ -30,6 +30,7 @@ import { ProfessionalDashboard } from './features/village/ProfessionalDashboard'
 import { AboutEli } from './features/about/AboutEli';
 import { UsageDashboard } from './features/admin/UsageDashboard';
 import { ExportCenter } from './features/capture/ExportCenter';
+import { VisionAgent } from './features/capture/VisionAgent';
 
 function AppContent() {
   const { user, loading } = useAuthStore();
@@ -159,6 +160,9 @@ function AppContent() {
       // Export Center Route
       case 'ExportCenter': content = <ExportCenter onBack={() => setCurrentView('Capture')} />; break;
 
+      // Vision Agent (Video Capture) Route
+      case 'VisionAgent': content = <VisionAgent />; break;
+
       default: content = <Dashboard onNavigate={setCurrentView} />;
     }
 
@@ -170,7 +174,7 @@ function AppContent() {
   };
 
   // Hide bottom nav for certain views
-  const hideNav = ['Passport', 'Vault', 'Onboarding', 'ProfessionalDashboard', 'About', 'AdminDashboard', 'ExportCenter'].includes(currentView);
+  const hideNav = ['Passport', 'Vault', 'Onboarding', 'ProfessionalDashboard', 'About', 'AdminDashboard', 'ExportCenter', 'VisionAgent'].includes(currentView);
 
   if (hideNav) {
     return (

@@ -13,7 +13,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle, FileText } from 'lucide-react';
+import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle, FileText, Video } from 'lucide-react';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { saveObservation } from '../../core/firebase/firestore';
 import { RESONANCE_CHANNELS, type ResonanceChannel, type ReciprocityLevel } from '../../core/stores/types';
@@ -604,6 +604,16 @@ export const Capture = ({ onNavigate }: CaptureProps) => {
                     <button className="p-3 rounded-full bg-white/40 hover:bg-white/60 transition-colors shadow-sm">
                         <Camera className="w-5 h-5 text-[#4B0082]" />
                     </button>
+                    {/* Video Capture Button */}
+                    {onNavigate && (
+                        <button 
+                            onClick={() => onNavigate('VisionAgent')}
+                            className="p-3 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors shadow-sm border border-purple-300"
+                            title="Record video observation"
+                        >
+                            <Video className="w-5 h-5 text-[#4B0082]" />
+                        </button>
+                    )}
                     {/* Export Button */}
                     {onNavigate && (
                         <button 
