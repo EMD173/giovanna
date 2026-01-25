@@ -31,8 +31,20 @@ export type ResonanceChannel = typeof RESONANCE_CHANNELS[number];
 export type ReciprocityLevel = 1 | 2 | 3 | 4 | 5;
 
 /**
+ * Media attachment for observations
+ */
+export interface MediaAttachment {
+    type: 'video' | 'image';
+    url: string;                             // Firebase Storage URL
+    thumbnailUrl?: string;                   // Thumbnail for videos
+    duration?: number;                       // Video duration in seconds
+    size?: number;                           // File size in bytes
+    mimeType?: string;                       // MIME type
+}
+
+/**
  * Observation: A witnessed moment
- * 
+ *
  * This is NOT a behavior log. It is a relational record
  * that honors the communication between caregiver and child.
  */
@@ -49,6 +61,9 @@ export interface Observation {
     atmosphericResonance: string;            // Systemic/historical context
     relationalReciprocity: ReciprocityLevel; // Quality of connection
     biologicalNeeds: string;                 // Sensory/physical state
+
+    // Media Attachments
+    media?: MediaAttachment[];               // Video/image attachments
 
     // Team Sharing (Village Tier)
     teamId?: string;                         // Links to team when published

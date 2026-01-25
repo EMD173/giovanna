@@ -22,7 +22,9 @@ import {
     Sparkles,
     Loader2,
     CheckCircle,
+    Video,
 } from 'lucide-react';
+import { formatDuration } from '../../core/firebase/videoStorage';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { getObservations } from '../../core/firebase/firestore';
 import { getProfile } from '../../core/firebase/profiles';
@@ -410,7 +412,16 @@ const ObservationCard = ({
                     className="flex-1 text-left"
                 >
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-[#1A1A1A]/50">{time}</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-[#1A1A1A]/50">{time}</span>
+                            {/* Video indicator */}
+                            {observation.media && observation.media.length > 0 && (
+                                <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-[#4B0082]/10 text-[#4B0082]">
+                                    <Video className="w-3 h-3" />
+                                    {observation.media.length}
+                                </span>
+                            )}
+                        </div>
                         <div className="flex items-center gap-1">
                             <Heart className={`w-3 h-3 ${reciprocityColor}`} />
                             <span className={`text-xs font-semibold ${reciprocityColor}`}>
@@ -517,6 +528,43 @@ const ObservationDetailModal = ({
                     <p className="text-sm text-[#4B0082] font-medium">{date}</p>
                     <p className="text-xs text-[#1A1A1A]/50">{time}</p>
                 </div>
+
+                {/* Media Attachments */}
+                {observation.media && observation.media.length > 0 && (
+                    <div className="mb-6">
+                        <h3 className="text-sm font-bold text-[#1A1A1A]/60 uppercase tracking-wide mb-2">
+                            Attached Media
+                        </h3>
+                        <div className="space-y-3">
+                            {observation.media.map((media, index) => (
+                                <div key={index} className="rounded-xl overflow-hidden bg-black">
+                                    {media.type === 'video' ? (
+                                        <div className="relative">
+                                            <video
+                                                src={media.url}
+                                                controls
+                                                playsInline
+                                                className="w-full aspect-video"
+                                                poster={media.thumbnailUrl}
+                                            />
+                                            {media.duration && (
+                                                <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-black/60 text-white text-xs">
+                                                    {formatDuration(media.duration)}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <img
+                                            src={media.url}
+                                            alt="Observation attachment"
+                                            className="w-full"
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Narrative */}
                 <div className="mb-6">

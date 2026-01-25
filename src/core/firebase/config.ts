@@ -10,6 +10,7 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 // ============================================================================
 // ENVIRONMENT CONFIGURATION
@@ -45,6 +46,9 @@ googleProvider.setCustomParameters({
 // Initialize Firestore with offline persistence
 export const db = getFirestore(app);
 
+// Initialize Cloud Storage for video/media uploads
+export const storage = getStorage(app);
+
 // ============================================================================
 // OFFLINE PERSISTENCE (PWA Support)
 // ============================================================================
@@ -77,6 +81,7 @@ if (useEmulators && typeof window !== 'undefined') {
     try {
         connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
         connectFirestoreEmulator(db, 'localhost', 8080);
+        connectStorageEmulator(storage, 'localhost', 9199);
         console.log('✅ Firebase Emulators connected');
     } catch (error) {
         console.warn('Firebase Emulator connection failed:', error);

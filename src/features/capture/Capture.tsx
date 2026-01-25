@@ -13,11 +13,14 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle } from 'lucide-react';
+import { Mic, Camera, Feather, Heart, Loader2, Sparkles, StopCircle, Video, X, Play } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { saveObservation } from '../../core/firebase/firestore';
-import { RESONANCE_CHANNELS, type ResonanceChannel, type ReciprocityLevel } from '../../core/stores/types';
+import { RESONANCE_CHANNELS, type ResonanceChannel, type ReciprocityLevel, type MediaAttachment } from '../../core/stores/types';
 import { convertSpeechToNarrative } from '../../lib/ai/agents/oracle';
+import { VideoCapture } from '../../components/VideoCapture';
+import { formatDuration } from '../../core/firebase/videoStorage';
 
 // Web Speech API Type Declarations
 interface SpeechRecognitionResult {
@@ -84,6 +87,10 @@ export const Capture = () => {
     const [processingVoice, setProcessingVoice] = useState(false);
     const recognitionRef = useRef<SpeechRecognitionType | null>(null);
     const [voiceSupported, setVoiceSupported] = useState(true);
+
+    // Video Capture State
+    const [showVideoCapture, setShowVideoCapture] = useState(false);
+    const [attachedMedia, setAttachedMedia] = useState<MediaAttachment[]>([]);
 
     // Check for Web Speech API support
     useEffect(() => {
@@ -190,6 +197,23 @@ export const Capture = () => {
         }
     };
 
+    // VIDEO CAPTURE: Handle video capture complete
+    const handleVideoCapture = (videoUrl: string, thumbnailUrl?: string, duration?: number) => {
+        const newMedia: MediaAttachment = {
+            type: 'video',
+            url: videoUrl,
+            thumbnailUrl,
+            duration,
+        };
+        setAttachedMedia(prev => [...prev, newMedia]);
+        setShowVideoCapture(false);
+    };
+
+    // Remove attached media
+    const removeMedia = (index: number) => {
+        setAttachedMedia(prev => prev.filter((_, i) => i !== index));
+    };
+
     const handleHonor = async () => {
         if (!user || !strengthNarrative.trim()) return;
 
@@ -201,6 +225,7 @@ export const Capture = () => {
                 atmosphericResonance,
                 relationalReciprocity,
                 biologicalNeeds: biologicalStates.join(', '),
+                media: attachedMedia.length > 0 ? attachedMedia : undefined,
             });
 
             // Trigger Gold Shimmer animation
@@ -214,6 +239,7 @@ export const Capture = () => {
                 setAtmosphericResonance('');
                 setRelationalReciprocity(3);
                 setBiologicalStates([]);
+                setAttachedMedia([]);
             }, 500);
 
         } catch (error) {
@@ -449,13 +475,74 @@ export const Capture = () => {
                 </div>
             </div>
 
+            {/* ATTACHED MEDIA PREVIEW */}
+            {attachedMedia.length > 0 && (
+                <div className="glass-panel p-4 rounded-[24px] mb-4">
+                    <label className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3 block">
+                        Attached Media
+                    </label>
+                    <div className="flex flex-wrap gap-3">
+                        {attachedMedia.map((media, index) => (
+                            <div
+                                key={index}
+                                className="relative w-24 h-24 rounded-xl overflow-hidden bg-black/10"
+                            >
+                                {media.type === 'video' && media.thumbnailUrl ? (
+                                    <img
+                                        src={media.thumbnailUrl}
+                                        alt="Video thumbnail"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-[#4B0082]/10">
+                                        <Video className="w-8 h-8 text-[#4B0082]" />
+                                    </div>
+                                )}
+                                {/* Play icon overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <Play className="w-6 h-6 text-white" fill="white" />
+                                </div>
+                                {/* Duration badge */}
+                                {media.duration && (
+                                    <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px]">
+                                        {formatDuration(media.duration)}
+                                    </div>
+                                )}
+                                {/* Remove button */}
+                                <button
+                                    onClick={() => removeMedia(index)}
+                                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* ACTION BAR */}
             <div className="flex justify-between items-center mb-4">
                 <div className="flex space-x-3">
-                    <button className="p-3 rounded-full bg-white/40 hover:bg-white/60 transition-colors shadow-sm">
-                        <Mic className="w-5 h-5 text-[#4B0082]" />
+                    <button
+                        onClick={toggleRecording}
+                        disabled={processingVoice}
+                        className={`p-3 rounded-full transition-colors shadow-sm ${
+                            isRecording
+                                ? 'bg-red-500 text-white animate-pulse'
+                                : 'bg-white/40 hover:bg-white/60'
+                        }`}
+                    >
+                        {isRecording ? (
+                            <StopCircle className="w-5 h-5" />
+                        ) : (
+                            <Mic className="w-5 h-5 text-[#4B0082]" />
+                        )}
                     </button>
-                    <button className="p-3 rounded-full bg-white/40 hover:bg-white/60 transition-colors shadow-sm">
+                    <button
+                        onClick={() => setShowVideoCapture(true)}
+                        className="p-3 rounded-full bg-white/40 hover:bg-white/60 transition-colors shadow-sm"
+                    >
                         <Camera className="w-5 h-5 text-[#4B0082]" />
                     </button>
                 </div>
@@ -482,6 +569,17 @@ export const Capture = () => {
                 <Heart className="w-3 h-3" />
                 This is witnessing, not surveillance.
             </p>
+
+            {/* VIDEO CAPTURE MODAL */}
+            <AnimatePresence>
+                {showVideoCapture && user && (
+                    <VideoCapture
+                        userId={user.uid}
+                        onCapture={handleVideoCapture}
+                        onCancel={() => setShowVideoCapture(false)}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* GOLD SHIMMER ANIMATION KEYFRAMES */}
             <style>{`

@@ -17,7 +17,7 @@ import {
     serverTimestamp
 } from 'firebase/firestore';
 import { db } from './config';
-import type { Observation, OracleReflection, ReciprocityLevel, ResonanceChannel } from '../stores/types';
+import type { Observation, OracleReflection, ReciprocityLevel, ResonanceChannel, MediaAttachment } from '../stores/types';
 
 // Collection references
 const observationsRef = collection(db, 'observations');
@@ -34,6 +34,7 @@ export async function saveObservation(
         atmosphericResonance: string;
         relationalReciprocity: ReciprocityLevel;
         biologicalNeeds: string;
+        media?: MediaAttachment[];
     }
 ): Promise<string> {
     const docRef = await addDoc(observationsRef, {
