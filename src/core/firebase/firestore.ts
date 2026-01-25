@@ -8,8 +8,11 @@
 
 import {
     collection,
+    doc,
     addDoc,
+    getDoc,
     getDocs,
+    updateDoc,
     query,
     where,
     orderBy,
@@ -17,7 +20,7 @@ import {
     serverTimestamp
 } from 'firebase/firestore';
 import { db } from './config';
-import type { Observation, OracleReflection, ReciprocityLevel, ResonanceChannel, MediaAttachment } from '../stores/types';
+import type { Observation, OracleReflection, ReciprocityLevel, ResonanceChannel, MediaAttachment, VideoAnalysis } from '../stores/types';
 
 // Collection references
 const observationsRef = collection(db, 'observations');
@@ -104,6 +107,59 @@ export async function getReflections(
         id: doc.id,
         ...doc.data()
     })) as OracleReflection[];
+}
+
+/**
+ * Save video analysis to an observation's media attachment
+ */
+export async function saveVideoAnalysis(
+    observationId: string,
+    mediaIndex: number,
+    analysis: VideoAnalysis
+): Promise<void> {
+    const obsRef = doc(observationsRef, observationId);
+    const obsDoc = await getDoc(obsRef);
+
+    if (!obsDoc.exists()) {
+        throw new Error('Observation not found');
+    }
+
+    const obsData = obsDoc.data() as Observation;
+    const media = obsData.media || [];
+
+    if (mediaIndex < 0 || mediaIndex >= media.length) {
+        throw new Error('Media index out of bounds');
+    }
+
+    // Update the specific media item with analysis
+    const updatedMedia = [...media];
+    updatedMedia[mediaIndex] = {
+        ...updatedMedia[mediaIndex],
+        analysis,
+    };
+
+    await updateDoc(obsRef, {
+        media: updatedMedia,
+    });
+}
+
+/**
+ * Get a single observation by ID
+ */
+export async function getObservation(
+    observationId: string
+): Promise<Observation | null> {
+    const obsRef = doc(observationsRef, observationId);
+    const obsDoc = await getDoc(obsRef);
+
+    if (!obsDoc.exists()) {
+        return null;
+    }
+
+    return {
+        id: obsDoc.id,
+        ...obsDoc.data(),
+    } as Observation;
 }
 
 /**

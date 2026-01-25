@@ -25,8 +25,9 @@ import {
     Video,
 } from 'lucide-react';
 import { formatDuration } from '../../core/firebase/videoStorage';
+import { VideoAnalysisView } from '../../components/VideoAnalysisView';
 import { useAuthStore } from '../../core/stores/useAuthStore';
-import { getObservations } from '../../core/firebase/firestore';
+import { getObservations, saveVideoAnalysis } from '../../core/firebase/firestore';
 import { getProfile } from '../../core/firebase/profiles';
 import {
     generateSingleObservationPDF,
@@ -35,7 +36,7 @@ import {
     type DocumentTemplate,
     type ExportOptions,
 } from '../../lib/export/pdfExport';
-import type { Observation, ResonanceChannel } from '../../core/stores/types';
+import type { Observation, ResonanceChannel, VideoAnalysis } from '../../core/stores/types';
 import type { UserProfile } from '../../core/stores/profileTypes';
 
 interface ObservationsTimelineProps {
@@ -327,6 +328,31 @@ export const ObservationsTimeline = ({ onNavigate }: ObservationsTimelineProps) 
                         onClose={() => setSelectedObservation(null)}
                         onExport={(template) => handleExportSingle(selectedObservation, template)}
                         isExporting={isExporting}
+                        onAnalysisSaved={(obsId, mediaIndex, analysis) => {
+                            // Update local state with the new analysis
+                            setObservations((prev) =>
+                                prev.map((obs) => {
+                                    if (obs.id === obsId && obs.media) {
+                                        const updatedMedia = [...obs.media];
+                                        updatedMedia[mediaIndex] = {
+                                            ...updatedMedia[mediaIndex],
+                                            analysis,
+                                        };
+                                        return { ...obs, media: updatedMedia };
+                                    }
+                                    return obs;
+                                })
+                            );
+                            // Update selected observation too
+                            if (selectedObservation?.id === obsId && selectedObservation.media) {
+                                const updatedMedia = [...selectedObservation.media];
+                                updatedMedia[mediaIndex] = {
+                                    ...updatedMedia[mediaIndex],
+                                    analysis,
+                                };
+                                setSelectedObservation({ ...selectedObservation, media: updatedMedia });
+                            }
+                        }}
                     />
                 )}
             </AnimatePresence>
@@ -472,14 +498,16 @@ interface ObservationDetailModalProps {
     onClose: () => void;
     onExport: (template: DocumentTemplate) => void;
     isExporting: boolean;
+    onAnalysisSaved?: (observationId: string, mediaIndex: number, analysis: VideoAnalysis) => void;
 }
 
 const ObservationDetailModal = ({
     observation,
-    profile: _profile,
+    profile,
     onClose,
     onExport,
     isExporting,
+    onAnalysisSaved,
 }: ObservationDetailModalProps) => {
     const [showExportOptions, setShowExportOptions] = useState(false);
 
@@ -535,29 +563,50 @@ const ObservationDetailModal = ({
                         <h3 className="text-sm font-bold text-[#1A1A1A]/60 uppercase tracking-wide mb-2">
                             Attached Media
                         </h3>
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             {observation.media.map((media, index) => (
-                                <div key={index} className="rounded-xl overflow-hidden bg-black">
-                                    {media.type === 'video' ? (
-                                        <div className="relative">
-                                            <video
+                                <div key={index} className="space-y-3">
+                                    <div className="rounded-xl overflow-hidden bg-black">
+                                        {media.type === 'video' ? (
+                                            <div className="relative">
+                                                <video
+                                                    src={media.url}
+                                                    controls
+                                                    playsInline
+                                                    className="w-full aspect-video"
+                                                    poster={media.thumbnailUrl}
+                                                />
+                                                {media.duration && (
+                                                    <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-black/60 text-white text-xs">
+                                                        {formatDuration(media.duration)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <img
                                                 src={media.url}
-                                                controls
-                                                playsInline
-                                                className="w-full aspect-video"
-                                                poster={media.thumbnailUrl}
+                                                alt="Observation attachment"
+                                                className="w-full"
                                             />
-                                            {media.duration && (
-                                                <div className="absolute bottom-2 right-2 px-2 py-1 rounded bg-black/60 text-white text-xs">
-                                                    {formatDuration(media.duration)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <img
-                                            src={media.url}
-                                            alt="Observation attachment"
-                                            className="w-full"
+                                        )}
+                                    </div>
+                                    {/* Video Analysis for video attachments */}
+                                    {media.type === 'video' && (
+                                        <VideoAnalysisView
+                                            media={media}
+                                            observationNarrative={observation.strengthNarrative}
+                                            childName={profile?.childName}
+                                            existingAnalysis={media.analysis}
+                                            onAnalysisComplete={async (analysis) => {
+                                                // Save to Firestore
+                                                try {
+                                                    await saveVideoAnalysis(observation.id, index, analysis);
+                                                    // Update local state
+                                                    onAnalysisSaved?.(observation.id, index, analysis);
+                                                } catch (err) {
+                                                    console.error('Failed to save analysis:', err);
+                                                }
+                                            }}
                                         />
                                     )}
                                 </div>

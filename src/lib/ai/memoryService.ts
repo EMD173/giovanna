@@ -27,6 +27,7 @@ import type {
     InsightCategory,
     MemoryTier,
     ResonanceChannel,
+    VideoAnalysis,
 } from '../../core/stores/types';
 
 // =====================================================
@@ -151,6 +152,10 @@ export async function analyzeObservationsForInsights(
         }
     }
 
+    // Analyze video analyses for insights
+    const videoInsights = extractVideoAnalysisInsights(observations, existingTitles);
+    newInsights.push(...videoInsights);
+
     return { newInsights, reinforcedInsightIds };
 }
 
@@ -210,6 +215,108 @@ function extractTriggersFromAtmospheric(
         .map(([keyword, count]) => ({ keyword, count }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
+}
+
+/**
+ * Extract insights from video analyses
+ */
+function extractVideoAnalysisInsights(
+    observations: Observation[],
+    existingTitles: Set<string>
+): Partial<MemoryInsight>[] {
+    const insights: Partial<MemoryInsight>[] = [];
+
+    // Collect all video analyses
+    const videoAnalyses: VideoAnalysis[] = [];
+    observations.forEach((obs) => {
+        obs.media?.forEach((media) => {
+            if (media.type === 'video' && media.analysis && media.analysis.status === 'completed') {
+                videoAnalyses.push(media.analysis);
+            }
+        });
+    });
+
+    if (videoAnalyses.length === 0) return [];
+
+    // Aggregate strengths from video analyses
+    const strengthCounts: Record<string, number> = {};
+    videoAnalyses.forEach((analysis) => {
+        analysis.strengthsObserved?.forEach((strength) => {
+            const normalized = strength.toLowerCase().slice(0, 50);
+            strengthCounts[normalized] = (strengthCounts[normalized] || 0) + 1;
+        });
+    });
+
+    // Create insights for frequently observed strengths
+    for (const [strength, count] of Object.entries(strengthCounts)) {
+        if (count >= 2) {
+            const title = `Video insight: ${strength.slice(0, 40)}`;
+            if (!existingTitles.has(title.toLowerCase())) {
+                insights.push({
+                    category: 'strength',
+                    title,
+                    description: `This strength has been observed in ${count} video analyses, indicating a consistent pattern.`,
+                    confidence: Math.min(0.85, count / 3),
+                    contextSnippet: strength,
+                    tier: 'patterns',
+                });
+            }
+        }
+    }
+
+    // Aggregate strategies from video analyses
+    const strategyCounts: Record<string, number> = {};
+    videoAnalyses.forEach((analysis) => {
+        analysis.suggestedStrategies?.forEach((strategy) => {
+            const normalized = strategy.toLowerCase().slice(0, 60);
+            strategyCounts[normalized] = (strategyCounts[normalized] || 0) + 1;
+        });
+    });
+
+    // Create insights for frequently suggested strategies
+    for (const [strategy, count] of Object.entries(strategyCounts)) {
+        if (count >= 2) {
+            const title = `Effective strategy: ${strategy.slice(0, 35)}`;
+            if (!existingTitles.has(title.toLowerCase())) {
+                insights.push({
+                    category: 'calming', // Strategies typically help with calming/regulation
+                    title,
+                    description: `This strategy has been suggested in ${count} video analyses, indicating it may be particularly helpful.`,
+                    confidence: Math.min(0.8, count / 3),
+                    contextSnippet: strategy,
+                    tier: 'patterns',
+                });
+            }
+        }
+    }
+
+    // Extract communication patterns from video analyses
+    const commCounts: Record<string, number> = {};
+    videoAnalyses.forEach((analysis) => {
+        analysis.communicationNotes?.forEach((note) => {
+            const normalized = note.toLowerCase().slice(0, 50);
+            commCounts[normalized] = (commCounts[normalized] || 0) + 1;
+        });
+    });
+
+    for (const [note, count] of Object.entries(commCounts)) {
+        if (count >= 2) {
+            const title = `Communication pattern: ${note.slice(0, 30)}`;
+            if (!existingTitles.has(title.toLowerCase())) {
+                insights.push({
+                    category: 'communication',
+                    title,
+                    description: `This communication pattern has been noted in ${count} video analyses.`,
+                    confidence: Math.min(0.75, count / 3),
+                    contextSnippet: note,
+                    tier: 'patterns',
+                });
+            }
+        }
+    }
+
+    // Limit to top insights by confidence
+    return insights.sort((a, b) => (b.confidence || 0) - (a.confidence || 0)).slice(0, 10);
 }
 
 /**
@@ -431,6 +538,18 @@ function extractStrategies(observations: Observation[]): string[] {
                 }
             }
         });
+
+        // Also extract strategies from video analyses
+        obs.media?.forEach((media) => {
+            if (media.type === 'video' && media.analysis?.suggestedStrategies) {
+                media.analysis.suggestedStrategies.slice(0, 2).forEach((s) => {
+                    const cleaned = s.slice(0, 60).trim();
+                    if (cleaned.length > 10) {
+                        strategies.push(cleaned);
+                    }
+                });
+            }
+        });
     });
 
     // Deduplicate and limit
@@ -466,6 +585,26 @@ function extractStrengths(observations: Observation[]): string[] {
     if (bodyObs.length >= 2) {
         strengths.push('Attuned to body signals');
     }
+
+    // Extract strengths from video analyses
+    const videoStrengths = new Set<string>();
+    observations.forEach((obs) => {
+        obs.media?.forEach((media) => {
+            if (media.type === 'video' && media.analysis?.strengthsObserved) {
+                media.analysis.strengthsObserved.slice(0, 2).forEach((s) => {
+                    // Clean and limit length
+                    const cleaned = s.replace(/^the child |^child /i, '').slice(0, 50);
+                    if (cleaned.length > 10) {
+                        videoStrengths.add(cleaned);
+                    }
+                });
+            }
+        });
+    });
+
+    // Add unique video strengths (limit to top 3)
+    const uniqueVideoStrengths = [...videoStrengths].slice(0, 3);
+    strengths.push(...uniqueVideoStrengths);
 
     return strengths;
 }

@@ -40,6 +40,7 @@ export interface MediaAttachment {
     duration?: number;                       // Video duration in seconds
     size?: number;                           // File size in bytes
     mimeType?: string;                       // MIME type
+    analysis?: VideoAnalysis;                // AI analysis results (for videos)
 }
 
 /**
@@ -328,4 +329,77 @@ export interface MemoryUpdateEvent {
     observationsProcessed: number;
     insightsGenerated: number;
     summaryUpdated: boolean;
+}
+
+/**
+ * =====================================================
+ * VIDEO ANALYSIS TYPES
+ * =====================================================
+ * AI-powered video analysis for behavior understanding
+ */
+
+/**
+ * Video analysis status
+ */
+export type VideoAnalysisStatus = 'pending' | 'processing' | 'completed' | 'failed';
+
+/**
+ * Detected element in video
+ */
+export interface VideoElement {
+    type: 'behavior' | 'environment' | 'interaction' | 'emotion' | 'sensory';
+    label: string;                         // Brief label
+    description: string;                   // Detailed description
+    timestamp?: number;                    // When in video (seconds)
+    confidence: number;                    // 0-1 confidence score
+}
+
+/**
+ * Video analysis result
+ */
+export interface VideoAnalysis {
+    id: string;
+    observationId?: string;                // Link to observation if attached
+    videoUrl: string;                      // The analyzed video URL
+
+    // Analysis status
+    status: VideoAnalysisStatus;
+    analyzedAt?: Timestamp;
+
+    // AI-generated insights (dignity-centered)
+    summary: string;                       // Brief summary of what's happening
+    strengthsObserved: string[];           // Strengths and capabilities shown
+    communicationNotes: string[];          // How child is communicating
+    environmentalFactors: string[];        // Environmental context
+
+    // Detected elements
+    elements: VideoElement[];
+
+    // Suggested strategies (strength-based)
+    suggestedStrategies: string[];
+
+    // Connection to memory
+    relatedInsightIds?: string[];          // Links to existing memory insights
+    newInsightSuggestions?: string[];      // Potential new insights to create
+
+    // Metadata
+    duration: number;                      // Video duration in seconds
+    framesSampled: number;                 // How many frames were analyzed
+
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
+/**
+ * Video analysis request (for queuing)
+ */
+export interface VideoAnalysisRequest {
+    id: string;
+    userId: string;
+    videoUrl: string;
+    observationId?: string;
+    status: VideoAnalysisStatus;
+    createdAt: Timestamp;
+    completedAt?: Timestamp;
+    error?: string;
 }
