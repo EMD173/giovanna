@@ -32,6 +32,9 @@ import { UsageDashboard } from './features/admin/UsageDashboard';
 import { ExportCenter } from './features/capture/ExportCenter';
 import { VisionAgent } from './features/capture/VisionAgent';
 import { PatternDashboard } from './features/analytics/PatternDashboard';
+import { SkillTracker } from './features/skills/SkillTracker';
+import { StrategyLibrary } from './features/resources/StrategyLibrary';
+import { TheoryHub } from './features/resources/TheoryHub';
 
 function AppContent() {
   const { user, loading } = useAuthStore();
@@ -166,6 +169,11 @@ function AppContent() {
 
       // Pattern Dashboard Route
       case 'PatternDashboard': content = <PatternDashboard onBack={() => setCurrentView('Sanctuary')} />; break;
+
+      // Wave 3: Skills & Education Routes
+      case 'SkillTracker': content = <SkillTracker onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'StrategyLibrary': content = <StrategyLibrary onBack={() => setCurrentView('Sanctuary')} />; break;
+      case 'TheoryHub': content = <TheoryHub onBack={() => setCurrentView('Sanctuary')} />; break;
 
       default: content = <Dashboard onNavigate={setCurrentView} />;
     }
