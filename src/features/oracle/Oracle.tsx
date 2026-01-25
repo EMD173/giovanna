@@ -21,9 +21,21 @@ import {
     shouldStartNewConversation,
     type OracleConversation,
 } from '../../core/firebase/oracleChats';
+import { getMemoryContextObject } from '../../core/firebase/memory';
+import { updateMemory, shouldUpdateMemory } from '../../lib/ai/memoryService';
 import { ApiKeySettings, getStoredApiKey } from '../../components/ApiKeySettings';
 import type { Observation } from '../../core/stores/types';
 import type { UserProfile } from '../../core/stores/profileTypes';
+
+// Memory context type for Oracle
+interface MemoryContext {
+    hasMemory: boolean;
+    summary?: string;
+    strengths: string[];
+    strategies: string[];
+    triggers: string[];
+    insights: { category: string; snippet: string }[];
+}
 
 // Gemini version for attribution
 const GEMINI_VERSION = 'Gemini 2.0 Flash';
@@ -36,11 +48,12 @@ type Message = {
 };
 
 /**
- * Generate a Reflective Mirroring response based on past observations AND profile data
+ * Generate a Reflective Mirroring response based on past observations, profile data, AND memory context
  */
 function generateReflectiveMirror(
     observations: Observation[],
-    profile: UserProfile | null
+    profile: UserProfile | null,
+    memoryContext?: MemoryContext
 ): string {
     const childName = profile?.childName || 'your child';
     const parentTitle = profile?.parent?.title || 'friend';
@@ -155,6 +168,48 @@ Let me ask: In those moments where the system speaks loudest, who is witnessing 
 When connection flows, it is easy to dismiss it as simply "a good day." But there is information here too. ${comfortRef}`);
     }
 
+    // Memory-informed responses (longitudinal patterns)
+    if (memoryContext?.hasMemory) {
+        // Use learned strategies
+        if (memoryContext.strategies.length > 0 && Math.random() > 0.5) {
+            const strategy = memoryContext.strategies[0];
+            responses.push(`${parentTitle}, I'm remembering something you've discovered about ${childName}.
+
+In past moments, you found that "${strategy}" — this wisdom came from your witnessing.
+
+Is this still resonating? Sometimes what worked before becomes a foundation for what works next.`);
+        }
+
+        // Reference known triggers
+        if (memoryContext.triggers.length > 0 && Math.random() > 0.6) {
+            const trigger = memoryContext.triggers[0];
+            responses.push(`I hold your accumulating knowledge of ${childName}, ${parentTitle}.
+
+You've witnessed how "${trigger}" often precedes moments of dysregulation. This pattern-recognition is the work of a scholar, not just a parent.
+
+In your recent observations, do you see this thread appearing again?`);
+        }
+
+        // Celebrate strengths
+        if (memoryContext.strengths.length > 0 && Math.random() > 0.7) {
+            const strength = memoryContext.strengths[0];
+            responses.push(`There is something I want to reflect back to you, ${parentTitle}.
+
+Across your witnessing of ${childName}, a strength keeps emerging: "${strength}."
+
+This is not incidental. This is who ${childName} is becoming. How might you name this for them?`);
+        }
+
+        // Use memory summary for deeper context
+        if (memoryContext.summary && responses.length < 2) {
+            responses.push(`${parentTitle}, I've been learning ${childName} alongside you.
+
+${memoryContext.summary}
+
+What does this pattern illuminate about what ${childName} needs from you in this season?`);
+        }
+    }
+
     // Default scholarly response with personalization
     if (responses.length === 0) {
         responses.push(`I am sitting with what you've shared about ${childName}, ${parentTitle}.
@@ -173,6 +228,7 @@ export const Oracle = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [observations, setObservations] = useState<Observation[]>([]);
     const [_profile, setProfile] = useState<UserProfile | null>(null);
+    const [memoryContext, setMemoryContext] = useState<MemoryContext | null>(null);
     const [isThinking, setIsThinking] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [hasApiKey, setHasApiKey] = useState(false);
@@ -224,20 +280,32 @@ export const Oracle = () => {
         setHasApiKey(!!key);
     }, []);
 
-    // Fetch observations, profile, and previous conversation on mount
+    // Fetch observations, profile, memory context, and previous conversation on mount
     useEffect(() => {
         async function loadData() {
             if (!user) return;
 
             try {
-                const [obs, userProfile, existingConversation] = await Promise.all([
+                const [obs, userProfile, existingConversation, memContext] = await Promise.all([
                     getObservations(user.uid, 10),
                     getProfile(user.uid),
                     getCurrentConversation(user.uid),
+                    getMemoryContextObject(user.uid),
                 ]);
 
                 setObservations(obs);
                 setProfile(userProfile);
+                setMemoryContext(memContext);
+
+                // Check if memory needs updating (runs in background)
+                shouldUpdateMemory(user.uid).then(async (needsUpdate) => {
+                    if (needsUpdate && obs.length >= 3) {
+                        await updateMemory(user.uid);
+                        // Refresh memory context after update
+                        const updatedContext = await getMemoryContextObject(user.uid);
+                        setMemoryContext(updatedContext);
+                    }
+                });
 
                 // Check if we should continue previous conversation or start new
                 if (existingConversation && !shouldStartNewConversation(existingConversation)) {
@@ -340,7 +408,7 @@ How are you carrying today?`;
 
         // Generate reflective mirroring response
         setTimeout(async () => {
-            const response = generateReflectiveMirror(observations, _profile);
+            const response = generateReflectiveMirror(observations, _profile, memoryContext || undefined);
             const oracleMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 sender: 'oracle',

@@ -195,3 +195,137 @@ export interface SkillTemplate {
     ageRange?: string;                     // e.g., "3-5", "6-12"
     suggestedTargetCount?: number;
 }
+
+/**
+ * =====================================================
+ * LONGITUDINAL MEMORY TYPES
+ * =====================================================
+ * AI-powered memory system that learns the child over time
+ */
+
+/**
+ * Memory tiers for time-based organization
+ */
+export type MemoryTier = 'recent' | 'patterns' | 'lifetime';
+
+/**
+ * Insight categories for pattern recognition
+ */
+export const INSIGHT_CATEGORIES = [
+    'trigger',           // What causes dysregulation
+    'calming',           // What helps regulate
+    'sensory',           // Sensory preferences/needs
+    'communication',     // How child communicates
+    'strength',          // Core strengths and joys
+    'growth',            // Areas of growth/progress
+    'connection',        // What builds connection
+    'environment',       // Environmental factors
+] as const;
+
+export type InsightCategory = typeof INSIGHT_CATEGORIES[number];
+
+/**
+ * Individual memory insight - a learned pattern
+ */
+export interface MemoryInsight {
+    id: string;
+    userId: string;
+    category: InsightCategory;
+
+    // The insight content
+    title: string;                         // Brief label: "Transitions are hard after school"
+    description: string;                   // Detailed insight with context
+    confidence: number;                    // 0-1, how confident based on observation count
+
+    // Evidence
+    sourceObservationIds: string[];        // Observations that support this insight
+    firstObserved: Timestamp;              // When first detected
+    lastConfirmed: Timestamp;              // When last confirmed by new observation
+
+    // Status
+    isActive: boolean;                     // Still relevant?
+    tier: MemoryTier;                      // recent, patterns, lifetime
+
+    // Oracle integration
+    contextSnippet: string;                // Compact version for prompt injection
+
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
+/**
+ * Child memory summary - periodic AI-generated overview
+ */
+export interface ChildMemorySummary {
+    id: string;
+    userId: string;
+
+    // Time period covered
+    periodStart: Timestamp;
+    periodEnd: Timestamp;
+    tier: MemoryTier;                      // recent (30 days), patterns (6 months), lifetime
+
+    // Summary content
+    narrativeSummary: string;              // Prose summary of the child during this period
+    keyInsights: string[];                 // Bullet-point insights
+
+    // Pattern analysis
+    commonTriggers: string[];              // Frequently observed triggers
+    effectiveStrategies: string[];         // What works
+    communicationPatterns: string[];       // How child expresses needs
+    strengthsObserved: string[];           // Recurring strengths
+
+    // Metrics
+    observationCount: number;              // How many observations in period
+    averageReciprocity: number;            // Average reciprocity score
+    dominantChannels: ResonanceChannel[];  // Most common communication channels
+
+    // Growth indicators
+    progressNotes?: string;                // Notable progress
+    concernAreas?: string;                 // Areas needing attention
+
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
+/**
+ * Memory context for Oracle prompt injection
+ * Compact representation for API calls
+ */
+export interface MemoryContext {
+    // Child overview (always included)
+    childSummary: string;                  // 2-3 sentence summary
+
+    // Recent patterns (last 30 days)
+    recentInsights: {
+        triggers: string[];
+        calmingStrategies: string[];
+        communicationNotes: string[];
+    };
+
+    // Relevant history (contextual)
+    relevantMemories?: string[];           // Past observations relevant to current context
+
+    // Skill progress context
+    activeSkills?: {
+        name: string;
+        mastery: MasteryLevel;
+        recentProgress: string;
+    }[];
+
+    // Systemic context
+    systemicFactors?: string[];            // Current stressors, transitions, etc.
+}
+
+/**
+ * Memory update event - tracks when memory was refreshed
+ */
+export interface MemoryUpdateEvent {
+    id: string;
+    userId: string;
+    timestamp: Timestamp;
+    tier: MemoryTier;
+    observationsProcessed: number;
+    insightsGenerated: number;
+    summaryUpdated: boolean;
+}
