@@ -21,6 +21,7 @@ import { Village } from './features/village/Village';
 import { Oracle } from './features/oracle/Oracle';
 import { Journey } from './features/journey/Journey';
 import { ObservationsTimeline } from './features/observations/ObservationsTimeline';
+import { Skills } from './features/skills/Skills';
 
 // Import Profile & Vault Components
 import { DigitalPassport } from './features/profile/DigitalPassport';
@@ -123,6 +124,7 @@ function AppContent() {
       case 'Oracle': content = <Oracle />; break;
       case 'Journey': content = <ObservationsTimeline onNavigate={setCurrentView} />; break;
       case 'Strategies': content = <Journey />; break;
+      case 'Skills': content = <Skills onNavigate={setCurrentView} />; break;
 
       // Profile & Vault Routes
       case 'Passport': content = <DigitalPassport />; break;

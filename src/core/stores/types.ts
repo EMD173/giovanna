@@ -96,3 +96,102 @@ export interface SanctuaryPulse {
     recentObservationCount: number;        // Last 7 days
     lastUpdated: Date;
 }
+
+/**
+ * =====================================================
+ * SKILL TRACKING TYPES
+ * =====================================================
+ * ABA-informed skill building with dignity-centered framing
+ */
+
+/**
+ * Skill Categories for organization
+ */
+export const SKILL_CATEGORIES = [
+    'Communication',
+    'Daily Living',
+    'Social',
+    'Academic',
+    'Motor',
+    'Self-Regulation',
+] as const;
+
+export type SkillCategory = typeof SKILL_CATEGORIES[number];
+
+/**
+ * Mastery levels for skill progression
+ */
+export const MASTERY_LEVELS = [
+    'Emerging',      // Just starting, needs full support
+    'Developing',    // Making progress, needs partial support
+    'Practicing',    // Can do with minimal prompts
+    'Mastered',      // Independent and consistent
+] as const;
+
+export type MasteryLevel = typeof MASTERY_LEVELS[number];
+
+/**
+ * Skill definition - a goal the child is working toward
+ */
+export interface Skill {
+    id: string;
+    userId: string;
+    childName?: string;                    // Optional child name for multi-child support
+
+    // Skill Details
+    name: string;                          // e.g., "Request help using AAC device"
+    description?: string;                  // Detailed description
+    category: SkillCategory;               // Category for organization
+
+    // Tracking Configuration
+    targetFrequency?: 'daily' | 'weekly';  // How often to track
+    targetCount?: number;                  // Target successful attempts per period
+
+    // Current Status
+    currentMastery: MasteryLevel;          // Current mastery level
+    isActive: boolean;                     // Whether actively tracking
+
+    // IEP Connection
+    iepGoalId?: string;                    // Link to IEP goal if applicable
+
+    // Timestamps
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+    masteredAt?: Timestamp;                // When mastery achieved
+}
+
+/**
+ * Skill entry - a single tracking data point
+ */
+export interface SkillEntry {
+    id: string;
+    skillId: string;
+    userId: string;
+
+    // Entry Data
+    date: Timestamp;                       // Date of entry
+    successCount: number;                  // Successful attempts
+    attemptCount: number;                  // Total attempts
+    promptLevel?: 'full' | 'partial' | 'minimal' | 'independent';
+
+    // Context
+    setting?: string;                      // Where (home, school, therapy)
+    notes?: string;                        // Optional notes
+
+    // Celebration
+    isMilestone?: boolean;                 // Mark special achievements
+
+    createdAt: Timestamp;
+}
+
+/**
+ * Skill template - pre-defined skills for easy setup
+ */
+export interface SkillTemplate {
+    id: string;
+    name: string;
+    description: string;
+    category: SkillCategory;
+    ageRange?: string;                     // e.g., "3-5", "6-12"
+    suggestedTargetCount?: number;
+}

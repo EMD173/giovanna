@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { CloudSun, Battery, CalendarClock, ChevronRight, Sparkles, Heart, AlertTriangle, BookOpen, ToggleLeft, ToggleRight, BarChart3 } from 'lucide-react';
+import { CloudSun, Battery, CalendarClock, ChevronRight, Sparkles, Heart, AlertTriangle, BookOpen, ToggleLeft, ToggleRight, BarChart3, Target } from 'lucide-react';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { useSanctuaryPulse } from '../../core/stores/useSanctuaryPulse';
 import { RegulationGlow } from '../../design/atoms/RegulationGlow';
@@ -307,6 +307,19 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                                 Institutional Vault
                             </p>
                             <p className="text-xs opacity-60">IEP, FBA, Clinical</p>
+                        </button>
+
+                        <button
+                            onClick={() => onNavigate('Skills')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center mb-2">
+                                <Target className="w-5 h-5 text-green-600" />
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Skills Tracker
+                            </p>
+                            <p className="text-xs opacity-60">Growth & Progress</p>
                         </button>
 
                         <button
