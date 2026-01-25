@@ -68,6 +68,30 @@ const BIOLOGICAL_STATES = [
 
 type BiologicalState = typeof BIOLOGICAL_STATES[number]['label'];
 
+// Quick Observation Templates - One-tap presets for common moments
+const QUICK_TEMPLATES = [
+    { id: 'morning', label: 'Morning Check-in', emoji: '🌅', prompt: 'Starting the day...', suggestedChannels: [] as ResonanceChannel[] },
+    { id: 'meltdown', label: 'Meltdown', emoji: '🌪️', prompt: 'There was an intense moment...', suggestedChannels: ['Seeking Safety', 'Sensory Need'] as ResonanceChannel[] },
+    { id: 'win', label: 'Win of the Day', emoji: '🏆', prompt: 'A moment of pride...', suggestedChannels: ['Joy Expression'] as ResonanceChannel[] },
+    { id: 'transition', label: 'Transition', emoji: '🚗', prompt: 'Navigating a change...', suggestedChannels: ['Transition Signal'] as ResonanceChannel[] },
+    { id: 'connection', label: 'Beautiful Connection', emoji: '💜', prompt: 'We had a special moment...', suggestedChannels: ['Connection Bid', 'Joy Expression'] as ResonanceChannel[] },
+    { id: 'sensory', label: 'Sensory Moment', emoji: '🎧', prompt: 'Sensory experience noted...', suggestedChannels: ['Sensory Need', 'Body Wisdom'] as ResonanceChannel[] },
+] as const;
+
+// Location Tags - Where did it happen?
+const LOCATIONS = [
+    { id: 'home', label: 'Home', emoji: '🏠' },
+    { id: 'school', label: 'School', emoji: '🏫' },
+    { id: 'therapy', label: 'Therapy', emoji: '🧠' },
+    { id: 'public', label: 'Public', emoji: '🛒' },
+    { id: 'car', label: 'In the Car', emoji: '🚗' },
+    { id: 'outdoors', label: 'Outdoors', emoji: '🌳' },
+    { id: 'relatives', label: 'Relatives', emoji: '👨‍👩‍👧' },
+    { id: 'other', label: 'Other', emoji: '📍' },
+] as const;
+
+type LocationId = typeof LOCATIONS[number]['id'];
+
 interface CaptureProps {
   onNavigate?: (view: string) => void;
 }
@@ -81,6 +105,11 @@ export const Capture = ({ onNavigate }: CaptureProps) => {
     const [biologicalStates, setBiologicalStates] = useState<BiologicalState[]>([]);
     const [saving, setSaving] = useState(false);
     const [showGoldShimmer, setShowGoldShimmer] = useState(false);
+
+    // New state for Quick Templates, Location, and Intensity
+    const [selectedLocation, setSelectedLocation] = useState<LocationId | null>(null);
+    const [intensity, setIntensity] = useState<number>(5); // 1-10 scale
+    const [showTemplates, setShowTemplates] = useState(true);
 
     // Vocal Capture State
     const [isRecording, setIsRecording] = useState(false);
@@ -194,15 +223,34 @@ export const Capture = ({ onNavigate }: CaptureProps) => {
         }
     };
 
+    // Apply a quick template
+    const applyTemplate = (template: typeof QUICK_TEMPLATES[number]) => {
+        setStrengthNarrative(template.prompt);
+        setSelectedChannels(template.suggestedChannels as ResonanceChannel[]);
+        setShowTemplates(false); // Hide templates after selection
+    };
+
     const handleHonor = async () => {
         if (!user || !strengthNarrative.trim()) return;
 
         setSaving(true);
         try {
+            // Build location string
+            const locationLabel = selectedLocation 
+                ? LOCATIONS.find(l => l.id === selectedLocation)?.label || ''
+                : '';
+            
+            // Combine atmospheric context with location and intensity
+            const fullContext = [
+                atmosphericResonance,
+                locationLabel && `Location: ${locationLabel}`,
+                `Intensity: ${intensity}/10`,
+            ].filter(Boolean).join(' | ');
+
             await saveObservation(user.uid, {
                 strengthNarrative,
                 channels: selectedChannels,
-                atmosphericResonance,
+                atmosphericResonance: fullContext,
                 relationalReciprocity,
                 biologicalNeeds: biologicalStates.join(', '),
             });
@@ -218,6 +266,9 @@ export const Capture = ({ onNavigate }: CaptureProps) => {
                 setAtmosphericResonance('');
                 setRelationalReciprocity(3);
                 setBiologicalStates([]);
+                setSelectedLocation(null);
+                setIntensity(5);
+                setShowTemplates(true);
             }, 500);
 
         } catch (error) {
@@ -285,6 +336,89 @@ export const Capture = ({ onNavigate }: CaptureProps) => {
                     </p>
                 </div>
             </header>
+
+            {/* QUICK TEMPLATES - One-tap observation starters */}
+            {showTemplates && (
+                <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-bold opacity-80" style={{ color: 'var(--text-primary)' }}>
+                            Quick Start
+                        </h3>
+                        <button 
+                            onClick={() => setShowTemplates(false)}
+                            className="text-xs text-gray-500 hover:text-gray-700"
+                        >
+                            Hide
+                        </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {QUICK_TEMPLATES.map((template) => (
+                            <button
+                                key={template.id}
+                                onClick={() => applyTemplate(template)}
+                                className="px-3 py-2 rounded-xl text-sm font-medium transition-all bg-white/40 border border-white/50 hover:bg-white/60 hover:scale-[1.02] active:scale-95 shadow-sm"
+                                style={{ color: 'var(--text-primary)' }}
+                            >
+                                <span className="mr-1">{template.emoji}</span>
+                                {template.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* LOCATION & INTENSITY - Quick context selectors */}
+            <div className="flex gap-3 mb-4">
+                {/* Location Selector */}
+                <div className="flex-1 glass-panel p-3 rounded-2xl">
+                    <label className="text-xs font-bold opacity-70 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                        📍 Where?
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                        {LOCATIONS.map(loc => (
+                            <button
+                                key={loc.id}
+                                onClick={() => setSelectedLocation(selectedLocation === loc.id ? null : loc.id)}
+                                className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${
+                                    selectedLocation === loc.id
+                                        ? 'bg-[#4B0082] text-white shadow-sm'
+                                        : 'bg-white/30 text-gray-700 hover:bg-white/50'
+                                }`}
+                            >
+                                {loc.emoji}
+                            </button>
+                        ))}
+                    </div>
+                    {selectedLocation && (
+                        <p className="text-xs mt-1.5 opacity-60">
+                            {LOCATIONS.find(l => l.id === selectedLocation)?.label}
+                        </p>
+                    )}
+                </div>
+
+                {/* Intensity Slider */}
+                <div className="flex-1 glass-panel p-3 rounded-2xl">
+                    <label className="text-xs font-bold opacity-70 mb-2 block" style={{ color: 'var(--text-primary)' }}>
+                        ⚡ Intensity
+                    </label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={intensity}
+                        onChange={(e) => setIntensity(Number(e.target.value))}
+                        className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                        style={{
+                            background: `linear-gradient(to right, #4B0082 0%, #4B0082 ${(intensity - 1) * 11.1}%, #e5e7eb ${(intensity - 1) * 11.1}%, #e5e7eb 100%)`,
+                        }}
+                    />
+                    <div className="flex justify-between mt-1">
+                        <span className="text-xs opacity-50">Calm</span>
+                        <span className="text-sm font-bold" style={{ color: 'var(--accent-regal)' }}>{intensity}</span>
+                        <span className="text-xs opacity-50">Intense</span>
+                    </div>
+                </div>
+            </div>
 
             {/* STRENGTH NARRATIVE (Main Text Area) */}
             <div className="glass-panel p-4 rounded-[24px] mb-4">
