@@ -10,6 +10,7 @@
 import { jsPDF } from 'jspdf';
 import type { Observation, ResonanceChannel } from '../../core/stores/types';
 import type { UserProfile } from '../../core/stores/profileTypes';
+import type { ProgressReport, SkillProgressSummary } from '../progress/progressAnalytics';
 
 /**
  * Document template types for different professional contexts
@@ -569,6 +570,293 @@ export function generateProfilePDF(
     addFooter(doc, `Profile prepared with love by ${parentTitle}. ${childName} is more than any document can capture.`, parentTitle);
 
     return doc;
+}
+
+/**
+ * Generate a progress report PDF
+ */
+export function generateProgressReportPDF(
+    report: ProgressReport,
+    template: 'therapist' | 'school' | 'personal' = 'personal'
+): jsPDF {
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
+    let y = margin;
+
+    const templateConfig = {
+        therapist: {
+            title: 'Progress Report for Therapy Provider',
+            intro: 'This report summarizes the child\'s progress based on parent observations and skill tracking. It is designed to inform therapy goals and treatment planning.',
+        },
+        school: {
+            title: 'Progress Report for Educational Team',
+            intro: 'This report documents the child\'s developmental progress as observed by their primary caregiver. It is shared to support educational planning and IEP meetings.',
+        },
+        personal: {
+            title: 'Progress Report',
+            intro: 'A summary of growth and achievements during this period.',
+        },
+    };
+
+    const config = templateConfig[template];
+
+    // Header
+    doc.setFillColor(COLORS.regalPurple);
+    doc.rect(0, 0, pageWidth, 45, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text(config.title, margin, 18);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Child: ${report.childName}`, margin, 28);
+    doc.text(`Period: ${report.period.label}`, margin, 35);
+    doc.text(`Generated: ${formatDate(report.generatedAt)}`, margin, 42);
+
+    y = 55;
+
+    // Introduction
+    doc.setTextColor(COLORS.textSecondary);
+    doc.setFontSize(9);
+    const introLines = doc.splitTextToSize(config.intro, contentWidth);
+    doc.text(introLines, margin, y);
+    y += introLines.length * 4 + 8;
+
+    // Divider
+    doc.setDrawColor(COLORS.borderLight);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 10;
+
+    // Summary Section
+    doc.setTextColor(COLORS.textPrimary);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Summary', margin, y);
+    y += 8;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const summaryLines = doc.splitTextToSize(report.narrativeSummary, contentWidth);
+    doc.text(summaryLines, margin, y);
+    y += summaryLines.length * 4 + 10;
+
+    // Celebrations Section
+    if (report.celebrationPoints.length > 0) {
+        y = checkPageBreak(doc, y, 40);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(COLORS.gold);
+        doc.text('Celebrations', margin, y);
+        y += 7;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(COLORS.textPrimary);
+        for (const celebration of report.celebrationPoints) {
+            const celebLines = doc.splitTextToSize(`★ ${celebration}`, contentWidth - 5);
+            doc.text(celebLines, margin + 2, y);
+            y += celebLines.length * 4 + 3;
+        }
+        y += 5;
+    }
+
+    // Skills Progress Section
+    if (report.skillSummaries.length > 0) {
+        y = checkPageBreak(doc, y, 50);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(COLORS.regalPurple);
+        doc.text('Skills Progress', margin, y);
+        y += 8;
+
+        // Group skills by trend
+        const improving = report.skillSummaries.filter(s => s.trend === 'improving');
+        const stable = report.skillSummaries.filter(s => s.trend === 'stable');
+        const declining = report.skillSummaries.filter(s => s.trend === 'declining');
+
+        if (improving.length > 0) {
+            y = addSkillGroup(doc, 'Improving Skills', improving, margin, y, contentWidth);
+        }
+        if (stable.length > 0) {
+            y = addSkillGroup(doc, 'Stable Skills', stable, margin, y, contentWidth);
+        }
+        if (declining.length > 0) {
+            y = addSkillGroup(doc, 'Skills Needing Support', declining, margin, y, contentWidth);
+        }
+    }
+
+    // Strengths Section
+    if (report.strengthHighlights.length > 0) {
+        y = checkPageBreak(doc, y, 40);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(COLORS.textPrimary);
+        doc.text('Strengths Observed', margin, y);
+        y += 7;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        for (const strength of report.strengthHighlights.slice(0, 6)) {
+            doc.text(`• ${strength.strength}`, margin + 2, y);
+            y += 5;
+        }
+        y += 5;
+    }
+
+    // Recommendations Section
+    if (template === 'therapist' && report.recommendationsForTherapist.length > 0) {
+        y = checkPageBreak(doc, y, 40);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(COLORS.regalPurple);
+        doc.text('Recommendations for Therapy', margin, y);
+        y += 7;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(COLORS.textPrimary);
+        for (const rec of report.recommendationsForTherapist) {
+            const recLines = doc.splitTextToSize(`• ${rec}`, contentWidth - 5);
+            doc.text(recLines, margin + 2, y);
+            y += recLines.length * 4 + 2;
+        }
+        y += 5;
+    }
+
+    if (template === 'school' && report.recommendationsForSchool.length > 0) {
+        y = checkPageBreak(doc, y, 40);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(COLORS.regalPurple);
+        doc.text('Recommendations for Educational Team', margin, y);
+        y += 7;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(COLORS.textPrimary);
+        for (const rec of report.recommendationsForSchool) {
+            const recLines = doc.splitTextToSize(`• ${rec}`, contentWidth - 5);
+            doc.text(recLines, margin + 2, y);
+            y += recLines.length * 4 + 2;
+        }
+        y += 5;
+    }
+
+    // Communication Patterns Section
+    if (report.observationStats.dominantChannels.length > 0) {
+        y = checkPageBreak(doc, y, 40);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(COLORS.textPrimary);
+        doc.text('Communication Patterns', margin, y);
+        y += 7;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        for (const channel of report.observationStats.dominantChannels) {
+            const count = report.observationStats.channelDistribution[channel] || 0;
+            const percentage = report.observationStats.periodCount > 0
+                ? Math.round((count / report.observationStats.periodCount) * 100)
+                : 0;
+            doc.text(`• ${channel}: ${percentage}% of observations`, margin + 2, y);
+            y += 5;
+        }
+        y += 5;
+    }
+
+    // Footer on all pages
+    addProgressFooter(doc, report.childName);
+
+    return doc;
+}
+
+// Helper functions for progress report PDF
+
+function checkPageBreak(doc: jsPDF, y: number, requiredSpace: number): number {
+    const pageHeight = doc.internal.pageSize.getHeight();
+    if (y + requiredSpace > pageHeight - 25) {
+        doc.addPage();
+        return 25;
+    }
+    return y;
+}
+
+function addSkillGroup(
+    doc: jsPDF,
+    title: string,
+    skills: SkillProgressSummary[],
+    margin: number,
+    y: number,
+    _contentWidth: number
+): number {
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(COLORS.textSecondary);
+    doc.text(title, margin + 2, y);
+    y += 5;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(COLORS.textPrimary);
+    doc.setFontSize(9);
+
+    for (const skill of skills.slice(0, 5)) {
+        if (y > pageHeight - 30) {
+            doc.addPage();
+            y = 25;
+        }
+
+        const levelText = `${skill.currentLevel.toFixed(1)}/5`;
+        const changeText = skill.levelChange >= 0 ? `+${skill.levelChange.toFixed(1)}` : skill.levelChange.toFixed(1);
+        doc.text(`• ${skill.skillName} (${levelText}, ${changeText})`, margin + 4, y);
+        y += 4;
+
+        if (skill.practiceCount > 0) {
+            doc.setTextColor(COLORS.textSecondary);
+            doc.text(`  ${skill.practiceCount} practice sessions`, margin + 6, y);
+            doc.setTextColor(COLORS.textPrimary);
+            y += 4;
+        }
+    }
+
+    return y + 3;
+}
+
+function addProgressFooter(doc: jsPDF, childName: string): void {
+    const pageCount = doc.internal.pages.length - 1;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+
+        doc.setDrawColor(COLORS.borderLight);
+        doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
+
+        doc.setFontSize(8);
+        doc.setTextColor(COLORS.textSecondary);
+        doc.text(`Progress report for ${childName}`, margin, pageHeight - 12);
+
+        doc.setTextColor(COLORS.gold);
+        doc.text(`Giovanna | Page ${i} of ${pageCount}`, pageWidth - margin - 40, pageHeight - 12);
+    }
 }
 
 /**

@@ -34,6 +34,7 @@ import {
     type ProgressReport,
     type SkillProgressSummary,
 } from '../../lib/progress/progressAnalytics';
+import { generateProgressReportPDF, sharePDF } from '../../lib/export/pdfExport';
 import type { UserProfile } from '../../core/stores/profileTypes';
 
 interface ProgressDashboardProps {
@@ -49,6 +50,8 @@ export const ProgressDashboard = ({ onNavigate: _onNavigate }: ProgressDashboard
     const [isLoading, setIsLoading] = useState(true);
     const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>('month');
     const [expandedSection, setExpandedSection] = useState<string | null>('overview');
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -96,6 +99,22 @@ export const ProgressDashboard = ({ onNavigate: _onNavigate }: ProgressDashboard
         }
     };
 
+    const handleExport = async (template: 'therapist' | 'school' | 'personal') => {
+        if (!report) return;
+
+        setIsExporting(true);
+        try {
+            const doc = generateProgressReportPDF(report, template);
+            const filename = `${report.childName}-progress-${selectedPeriod}-${new Date().toISOString().split('T')[0]}.pdf`;
+            await sharePDF(doc, filename, `${report.childName}'s Progress Report`);
+            setShowExportModal(false);
+        } catch (error) {
+            console.error('Export failed:', error);
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
@@ -126,7 +145,7 @@ export const ProgressDashboard = ({ onNavigate: _onNavigate }: ProgressDashboard
                             <Share2 className="w-5 h-5" />
                         </button>
                         <button
-                            onClick={() => {/* TODO: PDF export */}}
+                            onClick={() => setShowExportModal(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#4B0082] text-white text-sm font-semibold"
                         >
                             <Download className="w-4 h-4" />
@@ -380,9 +399,90 @@ export const ProgressDashboard = ({ onNavigate: _onNavigate }: ProgressDashboard
                     )}
                 </>
             )}
+
+            {/* EXPORT MODAL */}
+            <AnimatePresence>
+                {showExportModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+                        onClick={() => setShowExportModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="w-full max-w-sm bg-white rounded-[24px] p-6 shadow-xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">
+                                Export Progress Report
+                            </h2>
+                            <p className="text-sm text-[#1A1A1A]/60 mb-6">
+                                Choose who you're sharing with:
+                            </p>
+
+                            <div className="space-y-3">
+                                <ExportOption
+                                    title="For Therapist"
+                                    description="Includes therapy recommendations"
+                                    onClick={() => handleExport('therapist')}
+                                    isLoading={isExporting}
+                                />
+                                <ExportOption
+                                    title="For School"
+                                    description="Includes IEP recommendations"
+                                    onClick={() => handleExport('school')}
+                                    isLoading={isExporting}
+                                />
+                                <ExportOption
+                                    title="Personal Records"
+                                    description="Full report for your own use"
+                                    onClick={() => handleExport('personal')}
+                                    isLoading={isExporting}
+                                />
+                            </div>
+
+                            <button
+                                onClick={() => setShowExportModal(false)}
+                                className="w-full mt-4 py-2 text-sm text-[#1A1A1A]/60"
+                            >
+                                Cancel
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
+
+// Export Option Component
+interface ExportOptionProps {
+    title: string;
+    description: string;
+    onClick: () => void;
+    isLoading: boolean;
+}
+
+const ExportOption = ({ title, description, onClick, isLoading }: ExportOptionProps) => (
+    <button
+        onClick={onClick}
+        disabled={isLoading}
+        className="w-full p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors text-left flex items-center gap-3"
+    >
+        <div className="w-10 h-10 rounded-full bg-[#4B0082]/10 flex items-center justify-center">
+            <Download className="w-5 h-5 text-[#4B0082]" />
+        </div>
+        <div className="flex-1">
+            <p className="font-semibold text-[#1A1A1A]">{title}</p>
+            <p className="text-xs text-[#1A1A1A]/60">{description}</p>
+        </div>
+        {isLoading && <Loader2 className="w-5 h-5 animate-spin text-[#4B0082]" />}
+    </button>
+);
 
 // Stat Card Component
 interface StatCardProps {
