@@ -23,7 +23,8 @@ import {
     IconShieldLock,
     IconHeart,
     IconSparkles,
-    IconBattery
+    IconBattery,
+    IconBrain,
 } from '@tabler/icons-react';
 import { useAuthStore } from '../../core/stores/useAuthStore';
 import { useSanctuaryPulse } from '../../core/stores/useSanctuaryPulse';
@@ -236,7 +237,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                         Witness Moment
                     </button>
                     <button
-                        onClick={() => onNavigate && onNavigate('Journey')}
+                        onClick={() => onNavigate && onNavigate('PatternDashboard')}
                         className="px-4 py-3 rounded-2xl bg-white/40 border border-white/50 font-bold text-sm active:scale-95 transition-all hover:bg-white/60"
                         style={{ color: 'var(--text-primary)' }}
                     >
@@ -323,6 +324,19 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                                 Institutional Vault
                             </p>
                             <p className="text-xs opacity-60">IEP, FBA, Clinical</p>
+                        </button>
+
+                        <button
+                            onClick={() => onNavigate('PatternDashboard')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform gold-leaf-border"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4B0082]/20 to-[#D4AF37]/20 flex items-center justify-center mb-2">
+                                <IconBrain className="w-5 h-5 text-[#4B0082]" />
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Pattern Intelligence
+                            </p>
+                            <p className="text-xs opacity-60">AI-powered insights</p>
                         </button>
 
                         <button

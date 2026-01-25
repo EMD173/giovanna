@@ -31,6 +31,7 @@ import { AboutEli } from './features/about/AboutEli';
 import { UsageDashboard } from './features/admin/UsageDashboard';
 import { ExportCenter } from './features/capture/ExportCenter';
 import { VisionAgent } from './features/capture/VisionAgent';
+import { PatternDashboard } from './features/analytics/PatternDashboard';
 
 function AppContent() {
   const { user, loading } = useAuthStore();
@@ -162,6 +163,9 @@ function AppContent() {
 
       // Vision Agent (Video Capture) Route
       case 'VisionAgent': content = <VisionAgent />; break;
+
+      // Pattern Dashboard Route
+      case 'PatternDashboard': content = <PatternDashboard onBack={() => setCurrentView('Sanctuary')} />; break;
 
       default: content = <Dashboard onNavigate={setCurrentView} />;
     }
