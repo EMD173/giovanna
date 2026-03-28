@@ -379,6 +379,33 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                             <p className="text-xs opacity-60">Parent education</p>
                         </button>
 
+                        {/* Therapy & Practice */}
+                        <button
+                            onClick={() => onNavigate('Therapy')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-[#0EA5E9]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🩺</span>
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Therapy Prep
+                            </p>
+                            <p className="text-xs opacity-60">Session bridge</p>
+                        </button>
+
+                        <button
+                            onClick={() => onNavigate('Practice')}
+                            className="glass-panel p-4 rounded-[20px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                            <div className="w-10 h-10 rounded-xl bg-[#8B5CF6]/20 flex items-center justify-center mb-2">
+                                <span className="text-lg">🎮</span>
+                            </div>
+                            <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                                Practice
+                            </p>
+                            <p className="text-xs opacity-60">Playbook & Mantras</p>
+                        </button>
+
                         {/* Wave 4: Lifetime Continuity */}
                         <button
                             onClick={() => onNavigate('LegacyCenter')}
